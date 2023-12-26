@@ -72,18 +72,57 @@
 //     0x36, 0x6c, 0xd8, 0xab, 0x4d, 0x9a, 0x2f, 0x5e, // E
 //     0xbc, 0x63, 0xc6, 0x97, 0x35, 0x6a, 0xd4, 0xb3  // F
 // };
+void keyExpansionCore(uint8_t *in, uint8_t i)
+{
+    // Rotate left
+    uint8_t t = in[0];
+    in[0] = in[1];
+    in[1] = in[2];
+    in[2] = in[3];
+    in[3] = t;
 
-// Key expansion function (expands the original key into a key schedule)
+    // S-Box four bytes
+    in[0] = sbox[in[0]];
+    in[1] = sbox[in[1]];
+    in[2] = sbox[in[2]];
+    in[3] = sbox[in[3]];
+
+    // RCon
+    in[0] ^= rcon[i];
+}
 void keyExpansion(const uint8_t *originalKey, uint8_t *expandedKey)
 {
-    /* Key expansion logic (not provided in this simplified example)
-    You would need to implement the actual key expansion algorithm here
-    This involves performing transformations based on the AES key schedule
-    For simplicity, I'm omitting the implementation.
-    The expandedKey should contain the generated key schedule. */
-    for (int i = 0; i < 176; ++i)
+    int bytesGenerated = 16; // We've generated 16 bytes so far
+    int rconIteration = 1;   // RCon iteration begins at 1
+    uint8_t temp[4];         // Temporary storage for a word
+
+    // The first 16 bytes are the original key
+    for (int i = 0; i < 16; i++)
     {
-        expandedKey[i] = originalKey[i]; // Placeholder for key expansion logic
+        expandedKey[i] = originalKey[i];
+    }
+
+    // Generate the rest of the expanded key
+    while (bytesGenerated < 176)
+    {
+        // Read the last word into temp
+        for (int i = 0; i < 4; i++)
+        {
+            temp[i] = expandedKey[(bytesGenerated - 4) + i];
+        }
+
+        // Apply core schedule to temp every 16 bytes
+        if (bytesGenerated % 16 == 0)
+        {
+            keyExpansionCore(temp, rconIteration++);
+        }
+
+        // XOR temp with the word 16 bytes before the new expanded key. This becomes the next word in the expanded key
+        for (uint8_t a = 0; a < 4; a++)
+        {
+            expandedKey[bytesGenerated] = expandedKey[bytesGenerated - 16] ^ temp[a];
+            bytesGenerated++;
+        }
     }
 }
 
@@ -94,19 +133,14 @@ void encryptAES(const uint8_t *input, const uint8_t *key, uint8_t *output)
     // In a real implementation, you would perform the actual AES encryption steps here
     // Steps include AddRoundKey, SubBytes, ShiftRows, MixColumns (for non-final rounds)
     // In this simplified example, I'll just copy the input to the output (no encryption)
-
-    for (int i = 0; i < 16; ++i)
-    {
-        output[i] = input[i]; // Placeholder for encryption logic
-    }
 }
 
 int main()
 {
-    const uint8_t originalKey[32] = {0x12, 0x34, 0x56, 0x78, 0x90, 0xAB, 0xCD, 0xEF, 0x01, 0x23, 0x45, 0x67, 0x89, 0x0A, 0xBC, 0xDE, 0x12, 0x34, 0x56, 0x78, 0x90, 0xAB, 0xCD, 0xEF, 0x01, 0x23, 0x45, 0x67, 0x89, 0x0A, 0xBC, 0xDE};
-    const uint8_t plaintext[128] = {"hello world! "};
+    const uint8_t originalKey[32] = {"12344678891234567891234554"};
+    const uint8_t plaintext[128] = {"lmao this is a test message to see if this works"};
     uint8_t expandedKey[176]; // Expanded key schedule
-    uint8_t ciphertext[16];   // Encrypted data buffer
+    uint8_t ciphertext[8];    // Encrypted data buffer
 
     // Expand the original key into a key schedule
     keyExpansion(originalKey, expandedKey);
