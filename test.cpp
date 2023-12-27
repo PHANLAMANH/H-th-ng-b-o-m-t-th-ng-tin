@@ -106,6 +106,7 @@ std::bitset<128> decryptBlock(const std::bitset<128> &generated_key, const std::
 std::string blocksToMessage(const std::vector<std::bitset<128>> &message_blocks, size_t original_length)
 {
     std::string message;
+<<<<<<< Updated upstream
     const size_t block_size = 16; // 16 characters * 8 bits/character = 128 bits
 
     for (const auto &block : message_blocks)
@@ -129,6 +130,19 @@ std::string blocksToMessage(const std::vector<std::bitset<128>> &message_blocks,
     }
 
     // Only take as many characters as were in the original message
+=======
+
+    for (const auto &block : message_blocks)
+    {
+        for (size_t i = 0; i < 16; ++i)
+        {
+            char ch = static_cast<char>((block >> (i * 8)).to_ulong() & 0xFF);
+            message += ch;
+        }
+    }
+
+    // Chỉ lấy số ký tự tương ứng với độ dài ban đầu của tin nhắn
+>>>>>>> Stashed changes
     message = message.substr(0, original_length);
 
     return message;
