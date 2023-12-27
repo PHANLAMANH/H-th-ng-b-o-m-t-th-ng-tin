@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "c:/Users/pkhoa/OneDrive - VNU-HCMUS/Documents/GitHub/H-th-ng-b-o-m-t-th-ng-tin",
-      "program": "c:/Users/pkhoa/OneDrive - VNU-HCMUS/Documents/GitHub/H-th-ng-b-o-m-t-th-ng-tin/build/Debug/outDebug",
+      "cwd": "c:/Users/pkhoa/OneDrive - VNU-HCMUS/Documents/GitHub/He thong bao mat thong tin",
+      "program": "c:/Users/pkhoa/OneDrive - VNU-HCMUS/Documents/GitHub/He thong bao mat thong tin/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [
