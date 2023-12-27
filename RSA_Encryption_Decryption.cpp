@@ -27,69 +27,113 @@ bool Subtracter( bool a , bool b, bool & borrow){
         return diff;
 }
 
-
-bitset<129> addBit(bitset<128> &a, bitset<128> &b){
+bitset<128> addBin(bitset<128> &a, bitset<128> &b){
     bool carry = false;
     // bitset to store the sum of the two bitsets
-    bitset<129> ans;
-    for (int i = 0; i < 129; i++) {
+    bitset<128> ans;
+    for (int i = 0; i < 127; i++) {
         ans[i] = Adder(a[i], b[i], carry);
     }
     return ans;
 }
 
-bitset<129> subBit(bitset<129> x, bitset<128> y)
+bitset<128> subBin(bitset<128> x, bitset<128> y)
 {
     bool borrow = false;
     // bitset to store the sum of the two bitsets
-    bitset<129> ans;
-    for (int i = 0; i < 129; i++) {
+    bitset<128> ans;
+    for (int i = 0; i < 127; i++) {
         ans[i] = Subtracter(x[i], y[i], borrow);
     }
     return ans;
 }
 
-//bitset<16> binaryMultiplication(bitset<8> num1, bitset<8> num2) {
-//    bitset<16> result(0);
-//
-//    for (int i = 0; i < 8; ++i) {
-//        if (num2[i] == 1) {
-//            result ^= (num1 << i);  // XOR operation to add the shifted partial product
-//        }
-//    }
-//
-//    return result;
-//}
+bitset<128> mulBin(bitset<128>& a,bitset<128>& b) {
+    bitset<128> result(0);
 
-
-bitset<9> compareBin(bitset<9> num1, std::bitset<9> num2) {
-    for (int i = 8; i >= 0; --i) {
-        if (num1[i] > num2[i]) {
-            return num1;
-        } else if (num2[i] > num1[i]) {
-            return num2;
+    for (int i = 0; i < 127; ++i) {
+        if (b[i] == 1) {
+            result ^= (a << i);
         }
     }
-    return num1;
+    return result;
 }
-bitset<129> addMol(bitset<128> a, bitset<128> b , bitset<128> n){
-    bitset<129> con = addBit(a, b);
-    if ( con == 0){
+
+bool operator< ( bitset<128> &a, bitset <128> &b){
+    for ( int i = 127; i >= 0; i--){
+        if ( a[i] ^ b[i]) return b[i];
+    }
+    return false;
+}
+
+bool operator> ( bitset<128> &a, bitset <128> &b){
+    for ( int i = 127; i >= 0; i--){
+        if ( a[i] ^ b[i]) return a[i];
+    }
+    return false;
+}
+
+bitset<128> addMol(bitset<128> x, bitset<128> b , bitset<128> n){
+    bitset<128> con = addBin(x, b);
+    if ( con < n){
         return con;
     }
     else {
-        bitset<129> res = subBit(con, n);
+        bitset<128> res = subBin(con, n);
         return res;
     }
 }
 
+bitset<128> mulMol(bitset<128> x, bitset<128> y , bitset<128> n){
+    bitset<128> P (0);
+    if ( x[0] == 1){
+        for ( int i=0; i < 255;i++){
+            P[i] = x[i];
+        }
+        return P;
+    }
+    
+    for ( int i=1 ; i < 255; i++){
+        //x ≡ 2*x (mod n)
+        x <<= 1;
+        bitset<128> one_bitset(1);
+        x &= subBin(n, one_bitset); // modulo n
+        
+        // z = yi * x
+        bitset<128> yi (y[i]);
+        bitset<128> z = mulBin(yi,x);
+        
+        P = addMol(P,z,n);
+    }
+    
+    return P;
+}
 
 int main(){
-    bitset<128> a(12);
-    cout<<a<<endl;
-    bitset<128> b(15);
+//    bitset<128> a(12);
+//    cout<<a<<endl;
+//    bitset<128> b(15);
+//    
+//    bitset<129> result = addBin(a, b);
+//    cout<<result;
+//    bitset<128> one_bitset(10);
+//    bitset<128> d(2);
+//    bitset<128> e = mulBin(d,one_bitset);
+//    cout<<e;
+    bitset<128> x("1010101"); // 85
+    bitset<128> y("110101"); //53
+    bitset<128> n("11111"); //31
     
-    bitset<129> result = addBit(a, b);
-    cout<<result;
+    
+    bitset<128> d = addMol(x,y,n);
+    cout<<d<<endl;
+    
+    
+    
+//    cout<<x<<"\t"<<y<<"\t"<<n<<endl;
+    
+//    
+//    bitset<128> result = mulMol(x, y, n);
+//    cout << "Result: " << result << std::endl;
     return 0;
 }
