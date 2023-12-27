@@ -137,10 +137,10 @@ void encryptAES(const uint8_t *input, const uint8_t *key, uint8_t *output)
 
 int main()
 {
-    const uint8_t originalKey[32] = {"12344678891234567891234554"};
-    const uint8_t plaintext[128] = {"lmao this is a test message to see if this works"};
+    const uint8_t originalKey[16] = {"12344678891234"};
+    const uint8_t plaintext[128] = {"lmao this is a test message "};
     uint8_t expandedKey[176]; // Expanded key schedule
-    uint8_t ciphertext[8];    // Encrypted data buffer
+    uint8_t ciphertext[16];   // Encrypted data buffer
 
     // Expand the original key into a key schedule
     keyExpansion(originalKey, expandedKey);
