@@ -103,50 +103,6 @@ std::bitset<128> decryptBlock(const std::bitset<128> &generated_key, const std::
 {
     return generated_key ^ encrypted_block; // Simple XOR decryption for demonstration purposes
 }
-std::string blocksToMessage(const std::vector<std::bitset<128>> &message_blocks, size_t original_length)
-{
-    std::string message;
-<<<<<<< Updated upstream
-    const size_t block_size = 16; // 16 characters * 8 bits/character = 128 bits
-
-    for (const auto &block : message_blocks)
-    {
-        std::string block_str;
-        for (size_t i = 0; i < block_size; ++i)
-        {
-            // Handle each 8 bits (1 character) individually
-            char ch;
-            if (i < 8)
-            { // First 64 bits
-                ch = static_cast<char>((block >> (i * 8)).to_ullong() & 0xFF);
-            }
-            else
-            { // Next 64 bits
-                ch = static_cast<char>((block >> (i * 8 - 64)).to_ullong() & 0xFF);
-            }
-            block_str = ch + block_str; // Prepend the character because we're reading bits in reverse order
-        }
-        message += block_str;
-    }
-
-    // Only take as many characters as were in the original message
-=======
-
-    for (const auto &block : message_blocks)
-    {
-        for (size_t i = 0; i < 16; ++i)
-        {
-            char ch = static_cast<char>((block >> (i * 8)).to_ulong() & 0xFF);
-            message += ch;
-        }
-    }
-
-    // Chỉ lấy số ký tự tương ứng với độ dài ban đầu của tin nhắn
->>>>>>> Stashed changes
-    message = message.substr(0, original_length);
-
-    return message;
-}
 
 int main()
 {
