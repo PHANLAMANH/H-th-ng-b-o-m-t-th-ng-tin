@@ -1,160 +1,172 @@
+#include <iostream>
+#include <random>
+#include <bitset>
+#include <iomanip>
+#include <cstdint>
+// S-box và Rcon đã được cung cấp
+const uint8_t sbox[256] = {
+    // 0     1    2      3     4    5     6     7      8    9     A      B    C     D     E     F
+    0b01100011, 0b01111100, 0b01110111, 0b01111011, 0b11110010, 0b01101011, 0b01101111, 0b11000101, // 0
+    0b00110000, 0b00000001, 0b01100111, 0b00101011, 0b11111110, 0b11010111, 0b10101011, 0b01110110, // 1
+    0b11001010, 0b10000010, 0b11001001, 0b01111101, 0b11111010, 0b01011001, 0b01000111, 0b11110000, // 2
+    0b10101101, 0b11010100, 0b10100010, 0b10101111, 0b10011100, 0b10100100, 0b01110010, 0b11000000, // 3
+    0b10110111, 0b11111101, 0b10010011, 0b00100110, 0b00110110, 0b00111111, 0b11110111, 0b11001100, // 4
+    0b00110100, 0b10100101, 0b11100101, 0b11110001, 0b01110001, 0b11011000, 0b00110001, 0b00010101, // 5
+    0b00000100, 0b11000111, 0b00100011, 0b11000011, 0b00011000, 0b10010110, 0b00000101, 0b10011010, // 6
+    0b00000111, 0b00010010, 0b10000000, 0b11100010, 0b11101011, 0b00100111, 0b10110010, 0b01110101, // 7
+    0b00001001, 0b10000011, 0b00101100, 0b00011010, 0b00011011, 0b01101110, 0b01011010, 0b10100000, // 8
+    0b01010010, 0b00111011, 0b11010110, 0b10110011, 0b00101001, 0b11100011, 0b00101111, 0b10000100, // 9
+    0b01010011, 0b11010001, 0b00000000, 0b11101101, 0b00100000, 0b11111100, 0b10110001, 0b01011011, // A
+    0b01101010, 0b11001011, 0b10111110, 0b00111001, 0b01001010, 0b01001100, 0b01011000, 0b11001111, // B
+    0b11010000, 0b11101111, 0b10101010, 0b11111011, 0b01000011, 0b01001101, 0b00110011, 0b10000101, // C
+    0b01000101, 0b11111001, 0b00000010, 0b01111111, 0b01010000, 0b00111100, 0b10011111, 0b10101000, // D
+    0b01010001, 0b10100011, 0b01000000, 0b10001111, 0b10010010, 0b10011101, 0b00111000, 0b11110101, // E
+    0b10111100, 0b10110110, 0b11011010, 0b00100001, 0b00010000, 0b11111111, 0b11110011, 0b11010010  // F
+};
 
-#include "sbox_rcon.h"
-// int main()
-// {
-//     const int key_size = 128; // Key size in bits
+const uint8_t rcon[256] = {
+    // 0     1    2      3     4    5     6     7      8    9     A      B    C     D     E     F
+    0b10001101, 0b00000001, 0b00000010, 0b00000100, 0b00001000, 0b00010000, 0b00100000, 0b01000000, // 0
+    0b10000000, 0b00011011, 0b00110110, 0b01101100, 0b11011000, 0b10101011, 0b01001101, 0b10011010, // 1
+    0b00101111, 0b01011110, 0b10111100, 0b1100011, 0b11011000, 0b10010111, 0b01110101, 0b1101010,   // 2
+    0b11010011, 0b10110011, 0b01111101, 0b11111010, 0b11101111, 0b11000101, 0b10010001, 0b00111001, // 3
+    0b01110010, 0b11100100, 0b11010011, 0b10111101, 0b01100001, 0b11000010, 0b10011111, 0b00100101, // 4
+    0b01001010, 0b10010100, 0b00110011, 0b01100110, 0b11001100, 0b10000011, 0b00011101, 0b00111010, // 5
+    0b01110100, 0b11101000, 0b11001011, 0b10001101, 0b00000001, 0b00000010, 0b00000100, 0b00001000, // 6
+    0b00010000, 0b00100000, 0b01000000, 0b10000000, 0b00011011, 0b00110110, 0b01101100, 0b11011000, // 7
+    0b10101011, 0b01001101, 0b10011010, 0b00101111, 0b01011110, 0b10111100, 0b1100011, 0b11011000,  // 8
+    0b10010111, 0b01110101, 0b1101010, 0b11010011, 0b10110011, 0b01111101, 0b11111010, 0b11101111,  // 9
+    0b11000101, 0b10010001, 0b00111001, 0b01110010, 0b11100100, 0b11010011, 0b10111101, 0b01100001, // A
+    0b11000010, 0b10011111, 0b00100101, 0b01001010, 0b10010100, 0b00110011, 0b01100110, 0b11001100, // B
+    0b10000011, 0b00011101, 0b00111010, 0b01110100, 0b11101000, 0b11001011, 0b10001101, 0b00000001, // C
+    0b00000010, 0b00000100, 0b00001000, 0b00010000, 0b00100000, 0b01000000, 0b10000000, 0b00011011, // D
+    0b00110110, 0b01101100, 0b11011000, 0b10101011, 0b01001101, 0b10011010, 0b00101111, 0b01011110, // E
+    0b10111100, 0b1100011, 0b11011000, 0b10010111, 0b01110101, 0b1101010, 0b11010011, 0b10110011    // F
+};
 
-//     std::random_device rd;
-//     std::mt19937_64 gen(rd());
-//     std::uniform_int_distribution<uint64_t> dis;
-
-//     uint64_t key_parts[2];
-//     key_parts[0] = dis(gen);
-//     key_parts[1] = dis(gen);
-
-//     // Combine two 64-bit numbers into a 128-bit key
-
-//     uint64_t combined_key = (key_parts[0] << 64) | key_parts[1];
-//     unsigned char aes_key[key_size / 8]; // 128-bit key
-
-//     // Copy the 128-bit key into an array of bytes
-//     memcpy(aes_key, &combined_key, key_size / 8);
-//     std::cout << key_parts[0] << std::endl;
-//     std::cout << key_parts[1] << std::endl;
-
-//     // Display the generated key in hexadecimals
-//     std::cout << std::hex << std::uppercase << std::setfill('0');
-//     for (int i = 0; i < key_size / 8; ++i)
-//     {
-//         std::cout << std::setw(2) << static_cast<unsigned>(aes_key[i]);
-//     }
-//     std::cout << std::endl;
-
-//        return 0;
-// }
-
-// AES S-box and Rijndael Rcon tables (for simplicity)
-// const uint8_t sbox[128] = {
-//     // 0     1    2      3     4    5     6     7      8    9     A      B    C     D     E     F
-//     0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, // 0
-//     0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76, // 1
-//     0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59, 0x47, 0xf0, // 2
-//     0xad, 0xd4, 0xa2, 0xaf, 0x9c, 0xa4, 0x72, 0xc0, // 3
-//     0xb7, 0xfd, 0x93, 0x26, 0x36, 0x3f, 0xf7, 0xcc, // 4
-//     0x34, 0xa5, 0xe5, 0xf1, 0x71, 0xd8, 0x31, 0x15, // 5
-//     0x04, 0xc7, 0x23, 0xc3, 0x18, 0x96, 0x05, 0x9a, // 6
-//     0x07, 0x12, 0x80, 0xe2, 0xeb, 0x27, 0xb2, 0x75, // 7
-//     0x09, 0x83, 0x2c, 0x1a, 0x1b, 0x6e, 0x5a, 0xa0, // 8
-//     0x52, 0x3b, 0xd6, 0xb3, 0x29, 0xe3, 0x2f, 0x84, // 9
-//     0x53, 0xd1, 0x00, 0xed, 0x20, 0xfc, 0xb1, 0x5b, // A
-//     0x6a, 0xcb, 0xbe, 0x39, 0x4a, 0x4c, 0x58, 0xcf, // B
-//     0xd0, 0xef, 0xaa, 0xfb, 0x43, 0x4d, 0x33, 0x85, // C
-//     0x45, 0xf9, 0x02, 0x7f, 0x50, 0x3c, 0x9f, 0xa8, // D
-//     0x51, 0xa3, 0x40, 0x8f, 0x92, 0x9d, 0x38, 0xf5, // E
-//     0xbc, 0xb6, 0xda, 0x21, 0x10, 0xff, 0xf3, 0xd2  // F
-// };
-// const uint8_t rcon[128] = {
-//     // 0     1    2      3     4    5     6     7      8    9     A      B    C     D     E     F
-//     0x8d, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, // 0
-//     0x80, 0x1b, 0x36, 0x6c, 0xd8, 0xab, 0x4d, 0x9a, // 1
-//     0x2f, 0x5e, 0xbc, 0x63, 0xc6, 0x97, 0x35, 0x6a, // 2
-//     0xd4, 0xb3, 0x7d, 0xfa, 0xef, 0xc5, 0x91, 0x39, // 3
-//     0x72, 0xe4, 0xd3, 0xbd, 0x61, 0xc2, 0x9f, 0x25, // 4
-//     0x4a, 0x94, 0x33, 0x66, 0xcc, 0x83, 0x1d, 0x3a, // 5
-//     0x74, 0xe8, 0xcb, 0x8d, 0x01, 0x02, 0x04, 0x08, // 6
-//     0x10, 0x20, 0x40, 0x80, 0x1b, 0x36, 0x6c, 0xd8, // 7
-//     0xab, 0x4d, 0x9a, 0x2f, 0x5e, 0xbc, 0x63, 0xc6, // 8
-//     0x97, 0x35, 0x6a, 0xd4, 0xb3, 0x7d, 0xfa, 0xef, // 9
-//     0xc5, 0x91, 0x39, 0x72, 0xe4, 0xd3, 0xbd, 0x61, // A
-//     0xc2, 0x9f, 0x25, 0x4a, 0x94, 0x33, 0x66, 0xcc, // B
-//     0x83, 0x1d, 0x3a, 0x74, 0xe8, 0xcb, 0x8d, 0x01, // C
-//     0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, // D
-//     0x36, 0x6c, 0xd8, 0xab, 0x4d, 0x9a, 0x2f, 0x5e, // E
-//     0xbc, 0x63, 0xc6, 0x97, 0x35, 0x6a, 0xd4, 0xb3  // F
-// };
-void keyExpansionCore(uint8_t *in, uint8_t i)
+// Hàm thực hiện hoán vị byte theo S-box
+void subBytes(std::bitset<128> &key)
 {
-    // Rotate left
-    uint8_t t = in[0];
-    in[0] = in[1];
-    in[1] = in[2];
-    in[2] = in[3];
-    in[3] = t;
-
-    // S-Box four bytes
-    in[0] = sbox[in[0]];
-    in[1] = sbox[in[1]];
-    in[2] = sbox[in[2]];
-    in[3] = sbox[in[3]];
-
-    // RCon
-    in[0] ^= rcon[i];
-}
-void keyExpansion(const uint8_t *originalKey, uint8_t *expandedKey)
-{
-    int bytesGenerated = 16; // We've generated 16 bytes so far
-    int rconIteration = 1;   // RCon iteration begins at 1
-    uint8_t temp[4];         // Temporary storage for a word
-
-    // The first 16 bytes are the original key
-    for (int i = 0; i < 16; i++)
+    std::bitset<128> new_key;
+    for (int i = 0; i < 16; ++i)
     {
-        expandedKey[i] = originalKey[i];
+        int byte_index = i * 8;
+        std::bitset<128> byte = (key >> byte_index) & std::bitset<128>(0xFF);
+        new_key |= std::bitset<128>(sbox[byte.to_ulong()]) << byte_index;
     }
-
-    // Generate the rest of the expanded key
-    while (bytesGenerated < 176)
-    {
-        // Read the last word into temp
-        for (int i = 0; i < 4; i++)
-        {
-            temp[i] = expandedKey[(bytesGenerated - 4) + i];
-        }
-
-        // Apply core schedule to temp every 16 bytes
-        if (bytesGenerated % 16 == 0)
-        {
-            keyExpansionCore(temp, rconIteration++);
-        }
-
-        // XOR temp with the word 16 bytes before the new expanded key. This becomes the next word in the expanded key
-        for (uint8_t a = 0; a < 4; a++)
-        {
-            expandedKey[bytesGenerated] = expandedKey[bytesGenerated - 16] ^ temp[a];
-            bytesGenerated++;
-        }
-    }
+    key = new_key;
 }
 
-// AES encryption function
-void encryptAES(const uint8_t *input, const uint8_t *key, uint8_t *output)
+// Hàm sinh khóa k dựa trên Rcon
+std::bitset<128> generateKey(const std::bitset<128> &key)
 {
-    // This is a placeholder for the AES encryption logic
-    // In a real implementation, you would perform the actual AES encryption steps here
-    // Steps include AddRoundKey, SubBytes, ShiftRows, MixColumns (for non-final rounds)
-    // In this simplified example, I'll just copy the input to the output (no encryption)
+    std::bitset<128> new_key = key;
+    for (int i = 0; i < 11; ++i)
+    {
+        subBytes(new_key);                    // Hoán vị byte theo S-box
+        new_key ^= std::bitset<128>(rcon[i]); // XOR với Rcon
+    }
+    return new_key;
+}
+
+std::vector<std::bitset<128>> divideMessageIntoBlocks(const std::string &message)
+{
+    std::vector<std::bitset<128>> blocks;
+    const size_t block_size = 16; // 16 characters * 8 bits/character = 128 bits
+
+    // Lặp qua từng phần của tin nhắn và chia thành các khối 128 bit
+    for (size_t i = 0; i < message.length(); i += block_size)
+    {
+        std::string block_str = message.substr(i, block_size);
+        // Nếu độ dài không đủ, thêm ký tự space hoặc thực hiện xử lý phù hợp
+        while (block_str.length() < block_size)
+        {
+            block_str += ' '; // Thêm space nếu độ dài không đủ
+        }
+
+        std::bitset<128> block;
+        for (size_t j = 0; j < block_str.length(); ++j)
+        {
+            block <<= 8;
+            block |= std::bitset<128>(block_str[j]);
+        }
+        blocks.push_back(block);
+    }
+    return blocks;
+}
+
+std::bitset<128> encryptBlock(const std::bitset<128> &generated_key, const std::bitset<128> &block)
+{
+    return generated_key ^ block; // Simple XOR encryption for demonstration purposes
+}
+std::bitset<128> decryptBlock(const std::bitset<128> &generated_key, const std::bitset<128> &encrypted_block)
+{
+    return generated_key ^ encrypted_block; // Simple XOR decryption for demonstration purposes
+}
+std::string blocksToMessage(const std::vector<std::bitset<128>> &message_blocks, size_t original_length)
+{
+    std::string message;
+    const size_t block_size = 16; // 16 characters * 8 bits/character = 128 bits
+
+    for (const auto &block : message_blocks)
+    {
+        std::string block_str;
+        for (size_t i = 0; i < block_size; ++i)
+        {
+            // Handle each 8 bits (1 character) individually
+            char ch;
+            if (i < 8)
+            { // First 64 bits
+                ch = static_cast<char>((block >> (i * 8)).to_ullong() & 0xFF);
+            }
+            else
+            { // Next 64 bits
+                ch = static_cast<char>((block >> (i * 8 - 64)).to_ullong() & 0xFF);
+            }
+            block_str = ch + block_str; // Prepend the character because we're reading bits in reverse order
+        }
+        message += block_str;
+    }
+
+    // Only take as many characters as were in the original message
+    message = message.substr(0, original_length);
+
+    return message;
 }
 
 int main()
 {
-    const uint8_t originalKey[16] = {"12344678891234"};
-    const uint8_t plaintext[128] = {"lmao this is a test message "};
-    uint8_t expandedKey[176]; // Expanded key schedule
-    uint8_t ciphertext[16];   // Encrypted data buffer
+    // Khóa gốc, ví dụ: tạo một khóa ngẫu nhiên
+    std::bitset<128> original_key(100101011010010101);
 
-    // Expand the original key into a key schedule
-    keyExpansion(originalKey, expandedKey);
+    // Sinh khóa k
+    std::bitset<128> generated_key = generateKey(original_key);
 
-    // Encrypt the plaintext using the expanded key schedule
-    encryptAES(plaintext, expandedKey, ciphertext);
+    // In ra khóa đã sinh
+    std::cout << "Generated key K: " << generated_key << std::endl;
 
-    // Display the encrypted data (in hexadecimal)
-    std::cout << "Encrypted Message (Hex): ";
-    for (int i = 0; i < 16; ++i)
+    std::string message = "this is a test"; // Tin nhắn cần chia thành các khối
+
+    // Chia tin nhắn thành các khối 128 bit
+    std::vector<std::bitset<128>> message_blocks = divideMessageIntoBlocks(message);
+
+    // In ra các khối tin nhắn 128 bit
+    for (const auto &block : message_blocks)
     {
-        printf("%02x", ciphertext[i]);
+        std::cout << "Block: " << block << std::endl;
     }
-    std::cout << std::endl;
+    for (const auto &block : message_blocks)
+    {
+        std::bitset<128> encrypted_block = encryptBlock(generated_key, block);
+        std::cout << "Encrypted Block: " << encrypted_block << std::endl;
+
+        // Decrypt each block using the same key
+        std::bitset<128> decrypted_block = decryptBlock(generated_key, encrypted_block);
+        std::cout << "Decrypted Block: " << decrypted_block << std::endl;
+    }
+    // Chuyển các khối đã giải mã thành tin nhắn ban đầu
+    std::string decrypted_message = blocksToMessage(message_blocks, message.length());
+    std::cout << "Decrypted Message: " << decrypted_message << std::endl;
 
     return 0;
 }
