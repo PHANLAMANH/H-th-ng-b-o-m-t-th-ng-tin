@@ -94,7 +94,6 @@ std::bitset<128> operator+(const std::bitset<128> &a, const std::bitset<128> &b)
     return result;
 }
 
-// generate operator= for std::bitset<128>
 //  std::bitset<128> operator=(const std::bitset<128> &a)
 //  {
 //      std::bitset<128> result(0);
@@ -114,6 +113,20 @@ bool operator>=(const std::bitset<128> &a, const std::bitset<128> &b)
             return a[i];
     }
     return true;
+}
+
+// generate operator>>= for std::bitset<128>
+std::bitset<128> operator>>=(std::bitset<128> &a, int n)
+{
+    std::bitset<128> result(0);
+    for (int i = 0; i < 128; ++i)
+    {
+        if (i + n < 128)
+        {
+            result[i] = a[i + n];
+        }
+    }
+    return result;
 }
 
 // generate operator% for std::bitset<128>
@@ -141,67 +154,78 @@ std::bitset<128> multiply(const std::bitset<128> &a, const std::bitset<128> &b)
     return result;
 }
 
-std::bitset<128> powm(std::bitset<128> base, std::bitset<128> exp, const std::bitset<128> &mod)
+std::bitset<128> powerModulo(const std::bitset<128> &base, std::bitset<128> exp, const std::bitset<128> &mod)
 {
-    std::bitset<128> res(1);
+    std::bitset<128> result(1);
+    std::bitset<128> tempBase = base;
     while (exp > 0)
     {
         if (exp[0])
         {
-            res = modulo((multiply(res, base)), mod);
+            result = modulo(multiply(result, tempBase), mod);
         }
-        base = modulo((multiply(base, base)), mod);
-        exp = exp >> 1; // Create a new bitset for the result of the shift
+        tempBase = modulo(multiply(tempBase, tempBase), mod);
+        exp = exp >> 1;
     }
-    return res;
+    return result;
 }
+bool baillie_psw(const std::bitset<128> &n)
+{
+    if (n == 2 || n == 3)
+        return true;
+    if (n <= 1 || n[0])
+        return false;
 
-// bool baillie_psw(const std::bitset<128> &n)
-// {
-//     if (n == 2 || n == 3)
-//         return true;
-//     if (n <= 1 || n[0])
-//         return false;
+    std::bitset<128> d = subBin(n, 1);
+    while (!d[0])
+    {
+        d >>= 1;
+    }
 
-//     std::bitset<128> d = subBin(n, 1);
-//     while (!d[0])
-//     {
-//         d >>= 1;
-//     }
+    std::default_random_engine generator;
+    std::uniform_int_distribution<uint64_t> distribution(1, n.to_ullong());
 
-//     std::default_random_engine generator;
-//     std::uniform_int_distribution<uint64_t> distribution(1, n.to_ullong());
+    for (int i = 0; i < 5; ++i)
+    {
+        std::bitset<128> x = distribution(generator);
+        std::bitset<128> y = powerModulo(x, d, n);
+        if (y != 1 && y != subBin(n, 1))
+        {
+            bool composite = true;
+            for (int r = 1; r < d.count(); ++r)
+            {
+                y = powerModulo(y, 2, n);
+                if (y == subBin(n, 1))
+                {
+                    composite = false;
+                    break;
+                }
+            }
+            if (composite)
+                return false;
+        }
+    }
 
-//     for (int i = 0; i < 5; ++i)
-//     {
-//         std::bitset<128> x = distribution(generator);
-//         std::bitset<128> y = powm(x, d, n);
-//         if (y != 1 && y != subBin(n, 1))
-//         {
-//             bool composite = true;
-//             for (int r = 1; r < d.count(); ++r)
-//             {
-//                 y = powm(y, 2, n);
-//                 if (y == subBin(n, 1))
-//                 {
-//                     composite = false;
-//                     break;
-//                 }
-//             }
-//             if (composite)
-//                 return false;
-//         }
-//     }
-
-//     return true;
-// }
+    return true;
+}
 
 int main()
 {
     // test powm function
-    std::bitset<128> base(37);
+    std::bitset<128> base(2);
     std::bitset<128> exp(3);
-    std::bitset<128> mod(31);
-    std::bitset<128> res = powm(base, exp, mod);
-    std::cout << res << std::endl;
+    std::bitset<128> mod(5);
+    std::bitset<128> result = powerModulo(base, exp, mod);
+    std::cout << result << std::endl;
+    // check prime number
+    std::bitset<128> n(97);
+    std::cout << baillie_psw(97) << std::endl;
+    if (baillie_psw(n))
+    {
+        std::cout << "prime" << std::endl;
+    }
+    else
+    {
+        std::cout << "composite" << std::endl;
+    }
 }
