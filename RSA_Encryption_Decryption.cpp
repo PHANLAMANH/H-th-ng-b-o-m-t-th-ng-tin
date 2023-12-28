@@ -7,8 +7,9 @@
 
 #include "Header.h"
 
-bool Adder(bool a, bool b, bool &carry)
-{
+const bitset<128> one_bitset (1);
+
+bool Adder(bool a, bool b, bool &carry){
     bool sum = (a ^ b) ^ carry;
     carry = (a && b) || (a && carry) || (b && carry);
     return sum;

@@ -3,8 +3,8 @@
 #include <random>
 using namespace std;
 
-// generate operator<= for std::bitset<8>
-bool operator<=(const std::bitset<8> &a, const std::bitset<8> &b)
+// generate operator<= for std::bitset<128>
+bool operator<=(const std::bitset<128> &a, const std::bitset<128> &b)
 {
     for (int i = 127; i >= 0; i--)
     {
@@ -30,11 +30,11 @@ bool Subtracter(bool a, bool b, bool &borrow)
     return diff;
 }
 
-bitset<8> subBin(bitset<8> x, bitset<8> y)
+bitset<128> subBin(bitset<128> x, bitset<128> y)
 {
     bool borrow = false;
     // bitset to store the sum of the two bitsets
-    bitset<8> ans;
+    bitset<128> ans;
     for (int i = 0; i < 7; i++)
     {
         ans[i] = Subtracter(x[i], y[i], borrow);
@@ -42,8 +42,8 @@ bitset<8> subBin(bitset<8> x, bitset<8> y)
     return ans;
 }
 
-// generate operator> for std::bitset<8>
-bool operator>(const std::bitset<8> &a, const std::bitset<8> &b)
+// generate operator> for std::bitset<128>
+bool operator>(const std::bitset<128> &a, const std::bitset<128> &b)
 {
     for (int i = 127; i >= 0; i--)
     {
@@ -53,12 +53,12 @@ bool operator>(const std::bitset<8> &a, const std::bitset<8> &b)
     return false;
 }
 
-// generate operator+ for std::bitset<8>
-std::bitset<8> operator+(const std::bitset<8> &a, const std::bitset<8> &b)
+// generate operator+ for std::bitset<128>
+std::bitset<128> operator+(const std::bitset<128> &a, const std::bitset<128> &b)
 {
-    std::bitset<8> result(0);
+    std::bitset<128> result(0);
     bool carry = false;
-    for (int i = 0; i < 8; ++i)
+    for (int i = 0; i < 128; ++i)
     {
         if (a[i] == 1 && b[i] == 1)
         {
@@ -94,19 +94,19 @@ std::bitset<8> operator+(const std::bitset<8> &a, const std::bitset<8> &b)
     return result;
 }
 
-// generate operator= for std::bitset<8>
-//  std::bitset<8> operator=(const std::bitset<8> &a)
+// generate operator= for std::bitset<128>
+//  std::bitset<128> operator=(const std::bitset<128> &a)
 //  {
-//      std::bitset<8> result(0);
-//      for (int i = 0; i < 8; ++i)
+//      std::bitset<128> result(0);
+//      for (int i = 0; i < 128; ++i)
 //      {
 //          result[i] = a[i];
 //      }
 //      return result;
 //  }
 
-// generate operator>= for std::bitset<8>
-bool operator>=(const std::bitset<8> &a, const std::bitset<8> &b)
+// generate operator>= for std::bitset<128>
+bool operator>=(const std::bitset<128> &a, const std::bitset<128> &b)
 {
     for (int i = 127; i >= 0; i--)
     {
@@ -116,10 +116,10 @@ bool operator>=(const std::bitset<8> &a, const std::bitset<8> &b)
     return true;
 }
 
-// generate operator% for std::bitset<8>
-std::bitset<8> modulo(const std::bitset<8> &a, const std::bitset<8> &b)
+// generate operator% for std::bitset<128>
+std::bitset<128> modulo(const std::bitset<128> &a, const std::bitset<128> &b)
 {
-    std::bitset<8> result = a;
+    std::bitset<128> result = a;
     while (result >= b)
     {
         result = subBin(result, b);
@@ -127,11 +127,11 @@ std::bitset<8> modulo(const std::bitset<8> &a, const std::bitset<8> &b)
     return result;
 }
 
-// generate operator* for std::bitset<8>
-std::bitset<8> multiply(const std::bitset<8> &a, const std::bitset<8> &b)
+// generate operator* for std::bitset<128>
+std::bitset<128> multiply(const std::bitset<128> &a, const std::bitset<128> &b)
 {
-    std::bitset<8> result(0);
-    for (int i = 0; i < 8; ++i)
+    std::bitset<128> result(0);
+    for (int i = 0; i < 128; ++i)
     {
         if (b[i])
         {
@@ -141,29 +141,29 @@ std::bitset<8> multiply(const std::bitset<8> &a, const std::bitset<8> &b)
     return result;
 }
 
-// std::bitset<8> powm(std::bitset<8> base, std::bitset<8> exp, const std::bitset<8> &mod)
-// {
-//     std::bitset<8> res(1);
-//     while (exp > 0)
-//     {
-//         if (exp[0])
-//         {
-//             res = (res * base) % mod;
-//         }
-//         base = (base * base) % mod;
-//         exp = exp >> 1; // Create a new bitset for the result of the shift
-//     }
-//     return res;
-// }
+std::bitset<128> powm(std::bitset<128> base, std::bitset<128> exp, const std::bitset<128> &mod)
+{
+    std::bitset<128> res(1);
+    while (exp > 0)
+    {
+        if (exp[0])
+        {
+            res = modulo((multiply(res, base)), mod);
+        }
+        base = modulo((multiply(base, base)), mod);
+        exp = exp >> 1; // Create a new bitset for the result of the shift
+    }
+    return res;
+}
 
-// bool baillie_psw(const std::bitset<8> &n)
+// bool baillie_psw(const std::bitset<128> &n)
 // {
 //     if (n == 2 || n == 3)
 //         return true;
 //     if (n <= 1 || n[0])
 //         return false;
 
-//     std::bitset<8> d = subBin(n, 1);
+//     std::bitset<128> d = subBin(n, 1);
 //     while (!d[0])
 //     {
 //         d >>= 1;
@@ -174,8 +174,8 @@ std::bitset<8> multiply(const std::bitset<8> &a, const std::bitset<8> &b)
 
 //     for (int i = 0; i < 5; ++i)
 //     {
-//         std::bitset<8> x = distribution(generator);
-//         std::bitset<8> y = powm(x, d, n);
+//         std::bitset<128> x = distribution(generator);
+//         std::bitset<128> y = powm(x, d, n);
 //         if (y != 1 && y != subBin(n, 1))
 //         {
 //             bool composite = true;
@@ -198,12 +198,10 @@ std::bitset<8> multiply(const std::bitset<8> &a, const std::bitset<8> &b)
 
 int main()
 {
-    // test all operator
-    std::bitset<8> a(138);
-    std::bitset<8> b(31);
-    std::cout << "a = " << a << std::endl;
-    std::cout << "b = " << b << std::endl;
-    std::cout << "a+b = " << a + b << std::endl;
-    std::cout << "a%b = " << modulo(a, b) << std::endl;
-    std::cout << "a*b = " << multiply(a, b) << std::endl;
+    // test powm function
+    std::bitset<128> base(37);
+    std::bitset<128> exp(3);
+    std::bitset<128> mod(31);
+    std::bitset<128> res = powm(base, exp, mod);
+    std::cout << res << std::endl;
 }
