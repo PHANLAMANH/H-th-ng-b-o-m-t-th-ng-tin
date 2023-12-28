@@ -54,52 +54,26 @@ void shiftRows(std::bitset<128> &block)
 }
 
 // Hàm MixColumns tương thích với mảng mul2, mul3
-// void mixColumns(std::bitset<128> &block, const std::bitset<8> mul2[], const std::bitset<8> mul3[])
-// {
-//     std::bitset<128> result;
-
-//     for (int i = 0; i < 16; i += 4)
-//     {
-//         std::bitset<8> a0 = std::bitset<8>((block >> (i * 8)).to_ulong() & 0xFF);
-//         std::bitset<8> a1 = std::bitset<8>((block >> ((i + 1) * 8)).to_ulong() & 0xFF);
-//         std::bitset<8> a2 = std::bitset<8>((block >> ((i + 2) * 8)).to_ulong() & 0xFF);
-//         std::bitset<8> a3 = std::bitset<8>((block >> ((i + 3) * 8)).to_ulong() & 0xFF);
-
-//         std::bitset<8> b0 = mul2[a0.to_ulong()] ^ mul3[a1.to_ulong()] ^ a2 ^ a3;
-//         std::bitset<8> b1 = a0 ^ mul2[a1.to_ulong()] ^ mul3[a2.to_ulong()] ^ a3;
-//         std::bitset<8> b2 = a0 ^ a1 ^ mul2[a2.to_ulong()] ^ mul3[a3.to_ulong()];
-//         std::bitset<8> b3 = mul3[a0.to_ulong()] ^ a1 ^ a2 ^ mul2[a3.to_ulong()];
-
-//         result |= (std::bitset<128>(b0.to_ulong()) << (i * 8));
-//         result |= (std::bitset<128>(b1.to_ulong()) << ((i + 1) * 8));
-//         result |= (std::bitset<128>(b2.to_ulong()) << ((i + 2) * 8));
-//         result |= (std::bitset<128>(b3.to_ulong()) << ((i + 3) * 8));
-//     }
-
-//     block = result;
-// }
 void mixColumns(std::bitset<128> &block, const std::bitset<8> mul2[], const std::bitset<8> mul3[])
 {
     std::bitset<128> result;
 
     for (int i = 0; i < 16; i += 4)
     {
-        std::bitset<8> a[4];
-        for (int j = 0; j < 4; ++j)
-        {
-            a[j] = std::bitset<8>((block >> ((i + j) * 8)).to_ulong() & 0xFF);
-        }
+        std::bitset<8> a0 = std::bitset<8>((block >> (i * 8)).to_ulong() & 0xFF);
+        std::bitset<8> a1 = std::bitset<8>((block >> ((i + 1) * 8)).to_ulong() & 0xFF);
+        std::bitset<8> a2 = std::bitset<8>((block >> ((i + 2) * 8)).to_ulong() & 0xFF);
+        std::bitset<8> a3 = std::bitset<8>((block >> ((i + 3) * 8)).to_ulong() & 0xFF);
 
-        std::bitset<8> b[4];
-        b[0] = mul2[a[0].to_ulong()] ^ mul3[a[1].to_ulong()] ^ a[2] ^ a[3];
-        b[1] = a[0] ^ mul2[a[1].to_ulong()] ^ mul3[a[2].to_ulong()] ^ a[3];
-        b[2] = a[0] ^ a[1] ^ mul2[a[2].to_ulong()] ^ mul3[a[3].to_ulong()];
-        b[3] = mul3[a[0].to_ulong()] ^ a[1] ^ a[2] ^ mul2[a[3].to_ulong()];
+        std::bitset<8> b0 = mul2[a0.to_ulong()] ^ mul3[a1.to_ulong()] ^ a2 ^ a3;
+        std::bitset<8> b1 = a0 ^ mul2[a1.to_ulong()] ^ mul3[a2.to_ulong()] ^ a3;
+        std::bitset<8> b2 = a0 ^ a1 ^ mul2[a2.to_ulong()] ^ mul3[a3.to_ulong()];
+        std::bitset<8> b3 = mul3[a0.to_ulong()] ^ a1 ^ a2 ^ mul2[a3.to_ulong()];
 
-        for (int j = 0; j < 4; ++j)
-        {
-            result |= (std::bitset<128>(b[j].to_ulong()) << ((i + j) * 8));
-        }
+        result |= (std::bitset<128>(b0.to_ulong()) << (i * 8));
+        result |= (std::bitset<128>(b1.to_ulong()) << ((i + 1) * 8));
+        result |= (std::bitset<128>(b2.to_ulong()) << ((i + 2) * 8));
+        result |= (std::bitset<128>(b3.to_ulong()) << ((i + 3) * 8));
     }
 
     block = result;
@@ -316,7 +290,7 @@ std::bitset<128> decryptBlock(const std::bitset<128> &generated_key, const std::
         invSubBytes(decrypted_block);
         round_key = generateKey(round_key); // Tạo khóa cho vòng lặp tiếp theo
         decrypted_block ^= round_key;       // AddRoundKey: XOR với khóa vòng tiếp theo
-        invMixColumns(decrypted_block);     // Giải mã MixColumns
+        // invMixColumns(decrypted_block);     // Giải mã MixColumns
     }
 
     // AddRoundKey cuối cùng với khóa ban đầu
@@ -348,56 +322,63 @@ std::string blocksToMessage(const std::vector<std::bitset<128>> &message_blocks,
     return message;
 }
 
-int main()
-{
-    // Khóa gốc, ví dụ: tạo một khóa ngẫu nhiên
-    std::bitset<128> original_key(100101011010010101);
+// int main()
+// {
+//     // generate original key using random number generator bitset<128> binary
+//     std::random_device rd;
+//     std::mt19937 gen(rd());
+//     std::uniform_int_distribution<> dis(0, 1);
+//     std::bitset<128> original_key;
+//     for (int i = 0; i < 16; ++i)
+//     {
+//         original_key[i] = dis(gen);
+//     }
+//     std::cout << "Original key: " << original_key << std::endl;
 
-    // Sinh khóa k
-    std::bitset<128> generated_key = generateKey(original_key);
+//     // Sinh khóa k
+//     std::bitset<128> generated_key = generateKey(original_key);
 
-    // In ra khóa đã sinh
-    std::cout << "Generated key K: " << generated_key << std::endl;
-    std::cout << typeid(generated_key).name() << std::endl;
+//     // In ra khóa đã sinh
+//     std::cout << "Generated key K: " << generated_key << std::endl;
 
-    std::string message = "this is a test, my name is Lam Anh. "; // Tin nhắn cần chia thành các khối
+//     std::string message = "this is a test, my name is Lam Anh. "; // Tin nhắn cần chia thành các khối
 
-    // Chia tin nhắn thành các khối 128 bit
-    std::vector<std::bitset<128>> message_blocks = divideMessageIntoBlocks(message);
+//     // Chia tin nhắn thành các khối 128 bit
+//     std::vector<std::bitset<128>> message_blocks = divideMessageIntoBlocks(message);
 
-    // In ra các khối tin nhắn 128 bit
-    for (const auto &block : message_blocks)
-    {
-        std::cout << "Block: " << block << std::endl;
-    }
-    for (const auto &block : message_blocks)
-    {
-        std::bitset<128> encrypted_block = encryptBlock(generated_key, block);
-        std::cout << "Encrypted Block: " << encrypted_block << std::endl;
-    }
-    for (const auto &block : message_blocks)
-    {
-        std::bitset<128> decrypted_block = decryptBlock(generated_key, block);
-        std::cout << "Decrypted Block: " << decrypted_block << std::endl;
-    }
-    // Chuyển các khối đã giải mã thành tin nhắn ban đầu
-    std::string decrypted_message = blocksToMessage(message_blocks, message.length());
-    std::cout << "Decrypted Message: " << decrypted_message << std::endl;
+//     // In ra các khối tin nhắn 128 bit
+//     for (const auto &block : message_blocks)
+//     {
+//         std::cout << "Block: " << block << std::endl;
+//     }
+//     for (const auto &block : message_blocks)
+//     {
+//         std::bitset<128> encrypted_block = encryptBlock(generated_key, block);
+//         std::cout << "Encrypted Block: " << encrypted_block << std::endl;
+//     }
+//     for (const auto &block : message_blocks)
+//     {
+//         std::bitset<128> decrypted_block = decryptBlock(generated_key, block);
+//         std::cout << "Decrypted Block: " << decrypted_block << std::endl;
+//     }
+//     // Chuyển các khối đã giải mã thành tin nhắn ban đầu
+//     std::string decrypted_message = blocksToMessage(message_blocks, message.length());
+//     std::cout << "Decrypted Message: " << decrypted_message << std::endl;
 
-    return 0;
-    // std::bitset<8> a(0b11011010); // Ví dụ giá trị bitset a
-    // std::bitset<8> b(0b11110000); // Ví dụ giá trị bitset b
+//     return 0;
+// std::bitset<8> a(0b11011010); // Ví dụ giá trị bitset a
+// std::bitset<8> b(0b11110000); // Ví dụ giá trị bitset b
 
-    // std::bitset<16> result = a.to_ulong() + b.to_ulong(); // Thực hiện phép nhân
+// std::bitset<16> result = a.to_ulong() + b.to_ulong(); // Thực hiện phép nhân
 
-    // if (result.count() > 8)
-    // {
-    //     std::cout << "Tran" << std::endl;
-    // }
-    // else
-    // {
-    //     std::cout << "Khong tran." << std::endl;
-    // }
+// if (result.count() > 8)
+// {
+//     std::cout << "Tran" << std::endl;
+// }
+// else
+// {
+//     std::cout << "Khong tran." << std::endl;
+// }
 
-    // return 0;
-}
+// return 0;
+// }
