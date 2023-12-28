@@ -11,16 +11,20 @@ const bitset<128> one_bitset (1);
 
 bool Adder(bool a, bool b, bool &carry){
     bool sum = (a ^ b) ^ carry;
+    
     carry = (a && b) || (a && carry) || (b && carry);
+    
     return sum;
 }
 
 bool Subtracter(bool a, bool b, bool &borrow){
     bool diff;
+    
     if (borrow){
         diff = !(a ^ b);
         borrow = !a || (a && b);
     }
+    
     else{
         diff = a ^ b;
         borrow = !a && b;
@@ -32,6 +36,7 @@ bitset<128> addBin(bitset<128> &a, bitset<128> &b){
     bool carry = false;
     // bitset to store the sum of the two bitsets
     bitset<128> ans;
+    
     for (int i = 0; i < 127; i++){
         ans[i] = Adder(a[i], b[i], carry);
     }
@@ -104,49 +109,51 @@ bitset<128> addMod(bitset<128> x, bitset<128> b, bitset<128> n){
 
 bitset<128> mulMod(bitset<128> x, bitset<128> y, bitset<128> n){
     bitset<128> P(0);
-    if (x[0] == 1){
-        for (int i = 0; i < 255; i++){
-            P[i] = x[i];
-        }
-        return P;
+    
+    if (y[0] == 1){
+        P = x;
     }
 
-    for (int i = 1; i < 255; i++){
+    for (int i = 1; i < 127; i++){
         // x ≡ 2*x (mod n)
         x <<= 1;
-        bitset<128> one_bitset(1);
-        x &= subBin(n, one_bitset); // modulo n
-
+        x = Mod(x, n);
+        
         // z = yi * x
-        bitset<128> yi(y[i]);
+        
+        bitset<128> yi (y[i]);
         bitset<128> z = mulBin(yi, x);
-
+        
+        //P ≡ (P + z) (mod n)
         P = addMod(P, z, n);
     }
-
     return P;
+}
+
+
+bitset<128> powerMod(bitset<128> x, bitset<128> a, bitset<128> n){
+    bitset<128> y(1);
+    
+    for ( int i = 127 ; i >= 0; i--){
+        y = mulMod(y, y, n);
+        if ( a[i] == 1) {
+            y = mulMod(y, x, n);
+        }
+    }
+    return y;
 }
 
 int main()
 {
-    //    bitset<128> a(12);
-    //    cout<<a<<endl;
-    //    bitset<128> b(15);
-    //
-    //    bitset<129> result = addBin(a, b);
-    //    cout<<result;
-    //    bitset<128> one_bitset(10);
-    //    bitset<128> d(2);
-    //    bitset<128> e = mulBin(d,one_bitset);
-    //    cout<<e;
-    bitset<128> x("00001101"); // 85
-    bitset<128> y("00000111"); // 53
-    bitset<128> n("00011111"); // 31
 
-    bitset<128> result = subBin(x, y);
-    cout << "Result: " << result << std::endl;
-    //
-    //    bitset<128> result = mulMol(x, y, n);
-    //    cout << "Result: " << result << std::endl;
+    bitset<128> x("1010101"); // 85
+    bitset<128> y("110101"); // 53
+    bitset<128> n("11111"); // 31
+    
+    cout<<y<<endl;
+    
+    bitset<128> result = powerMod(x, y, n);
+    cout << "Result: " << result << endl;
+    
     return 0;
 }
