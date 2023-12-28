@@ -91,18 +91,18 @@ bitset<128> Mod(bitset<128> &a, bitset<128> &b){
 }
 
 
-bitset<128> addMol(bitset<128> x, bitset<128> b, bitset<128> n){
+bitset<128> addMod(bitset<128> x, bitset<128> b, bitset<128> n){
     bitset<128> con = addBin(x, b);
     if (con < n){
         return con;
     }
     else{
-        bitset<128> res = subBin(con, n);
+        bitset<128> res = Mod(con, n);
         return res;
     }
 }
 
-bitset<128> mulMol(bitset<128> x, bitset<128> y, bitset<128> n){
+bitset<128> mulMod(bitset<128> x, bitset<128> y, bitset<128> n){
     bitset<128> P(0);
     if (x[0] == 1){
         for (int i = 0; i < 255; i++){
@@ -121,7 +121,7 @@ bitset<128> mulMol(bitset<128> x, bitset<128> y, bitset<128> n){
         bitset<128> yi(y[i]);
         bitset<128> z = mulBin(yi, x);
 
-        P = addMol(P, z, n);
+        P = addMod(P, z, n);
     }
 
     return P;
