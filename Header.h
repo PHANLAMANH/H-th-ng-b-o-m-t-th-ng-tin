@@ -12,9 +12,8 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-
+#include <bitset>
 
 using namespace std;
-
 
 #endif /* Header_h */
