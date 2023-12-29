@@ -324,63 +324,63 @@ std::string blocksToMessage(const std::vector<std::bitset<128>> &message_blocks,
     return message;
 }
 
-// int main()
-// {
-//     // generate original key using random number generator bitset<128> binary
-//     std::random_device rd;
-//     std::mt19937 gen(rd());
-//     std::uniform_int_distribution<> dis(0, 1);
-//     std::bitset<128> original_key;
-//     for (int i = 0; i < 16; ++i)
-//     {
-//         original_key[i] = dis(gen);
-//     }
-//     std::cout << "Original key: " << original_key << std::endl;
+int main()
+{
+    // generate original key using random number generator bitset<128> binary
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(0, 1);
+    std::bitset<128> original_key;
+    for (int i = 0; i < 16; ++i)
+    {
+        original_key[i] = dis(gen);
+    }
+    std::cout << "Original key: " << original_key << std::endl;
 
-//     // Sinh khóa k
-//     std::bitset<128> generated_key = generateKey(original_key);
+    // Sinh khóa k
+    std::bitset<128> generated_key = generateKey(original_key);
 
-//     // In ra khóa đã sinh
-//     std::cout << "Generated key K: " << generated_key << std::endl;
+    // In ra khóa đã sinh
+    std::cout << "Generated key K: " << generated_key << std::endl;
 
-//     std::string message = "this is a test, my name is Lam Anh. "; // Tin nhắn cần chia thành các khối
+    std::string message = "this is a test, my name is Lam Anh. "; // Tin nhắn cần chia thành các khối
 
-//     // Chia tin nhắn thành các khối 128 bit
-//     std::vector<std::bitset<128>> message_blocks = divideMessageIntoBlocks(message);
+    // // Chia tin nhắn thành các khối 128 bit
+    // std::vector<std::bitset<128>> message_blocks = divideMessageIntoBlocks(message);
 
-//     // In ra các khối tin nhắn 128 bit
-//     for (const auto &block : message_blocks)
-//     {
-//         std::cout << "Block: " << block << std::endl;
-//     }
-//     for (const auto &block : message_blocks)
-//     {
-//         std::bitset<128> encrypted_block = encryptBlock(generated_key, block);
-//         std::cout << "Encrypted Block: " << encrypted_block << std::endl;
-//     }
-//     for (const auto &block : message_blocks)
-//     {
-//         std::bitset<128> decrypted_block = decryptBlock(generated_key, block);
-//         std::cout << "Decrypted Block: " << decrypted_block << std::endl;
-//     }
-//     // Chuyển các khối đã giải mã thành tin nhắn ban đầu
-//     std::string decrypted_message = blocksToMessage(message_blocks, message.length());
-//     std::cout << "Decrypted Message: " << decrypted_message << std::endl;
+    // // In ra các khối tin nhắn 128 bit
+    // for (const auto &block : message_blocks)
+    // {
+    //     std::cout << "Block: " << block << std::endl;
+    // }
+    // for (const auto &block : message_blocks)
+    // {
+    //     std::bitset<128> encrypted_block = encryptBlock(generated_key, block);
+    //     std::cout << "Encrypted Block: " << encrypted_block << std::endl;
+    // }
+    // for (const auto &block : message_blocks)
+    // {
+    //     std::bitset<128> decrypted_block = decryptBlock(generated_key, block);
+    //     std::cout << "Decrypted Block: " << decrypted_block << std::endl;
+    // }
+    // // Chuyển các khối đã giải mã thành tin nhắn ban đầu
+    // std::string decrypted_message = blocksToMessage(message_blocks, message.length());
+    // std::cout << "Decrypted Message: " << decrypted_message << std::endl;
 
-//     return 0;
-// std::bitset<8> a(0b11011010); // Ví dụ giá trị bitset a
-// std::bitset<8> b(0b11110000); // Ví dụ giá trị bitset b
+    return 0;
+    // std::bitset<8> a(0b11011010); // Ví dụ giá trị bitset a
+    // std::bitset<8> b(0b11110000); // Ví dụ giá trị bitset b
 
-// std::bitset<16> result = a.to_ulong() + b.to_ulong(); // Thực hiện phép nhân
+    // std::bitset<16> result = a.to_ulong() + b.to_ulong(); // Thực hiện phép nhân
 
-// if (result.count() > 8)
-// {
-//     std::cout << "Tran" << std::endl;
-// }
-// else
-// {
-//     std::cout << "Khong tran." << std::endl;
-// }
+    // if (result.count() > 8)
+    // {
+    //     std::cout << "Tran" << std::endl;
+    // }
+    // else
+    // {
+    //     std::cout << "Khong tran." << std::endl;
+    // }
 
-// return 0;
-// }
+    // return 0;
+}
