@@ -163,37 +163,6 @@ bool isEven ( bitset<128> x){
         else return false;
 }
         
-bitset<128> findGCD( bitset<128> a, bitset<128> b){
-    bitset<128> g(1);
-    bitset<128> two(2);
-    bitset<128> zero(0);
-    while ( isEven(a) && isEven(b)){
-        a = a >> 1;
-        cout<<"a: "<<a<<endl;
-        b = b >> 1;
-        cout<<"b:" << b<<endl;
-        g = mulBin(g, two);
-    }
-    while ( a > zero){
-        cout<<a<<endl;
-        while (isEven(a)){
-            bool even = isEven(a);
-            cout<<even<<endl;
-            cout<<"a: "<<a<<endl;
-            a = a >> 1;
-        }
-        while (isEven(b)){
-            cout<<"b: "<<b<<endl;
-            b = b >> 1;
-        }
-        bitset<128> t = absolutesubBin(a, b);
-        cout<<"T: "<<t<<endl;
-        if (a > b ) a = t;
-        else b = t;
-    }
-    g = mulBin(g, b);
-    return g;
-}
 
 bitset<128 > chooseA( bitset<128> p){
     random_device();
@@ -206,30 +175,123 @@ bool isFermatPrime( bitset<128> p, int k){
     for ( int i = 0 ; i < k; i++){
         bitset<128> a = chooseA(p);
         if ( powerMod(a, subBin(p, one_bitset), p) != 1){
-            cout<<"Composite"<<endl;
             return false;
         }
     }
-    cout<<"Pseudoprime"<<endl;
     return true;
 }
 
 
 
-int main()
-{
+vector <bitset<128>> bezoutCofficient(bitset<128> a, bitset<128> b){
+    bitset<128>s (0); bitset<128> old_s = (1);
+    bitset<128> t (1); bitset<128>old_t (0);
+    bitset<128> r = b; bitset<128> old_r = a;
+    
+    while ( r != 0){
+        bitset<128> quotient = old_r.to_ulong()/r.to_ulong();
+        bitset<128> temp = r;
+        
+        r = old_r.to_ulong() - quotient.to_ulong()*r.to_ulong();
+        old_r = temp;
+        
+        // We treat s and t in the same manner we treated r
+        temp = s;
+        s = old_s.to_ulong() - quotient.to_ulong()*s.to_ulong();
+        old_s = temp;
+        
+        temp = t;
+        t = old_t.to_ulong() - quotient.to_ulong()*t.to_ulong();
+        old_t = temp;
+    }
+    vector<bitset<128>> result;
+    result.push_back(old_r); // GCD ( a,b)
+    result.push_back(old_s); // x           ax + by = GCD (a,b)
+    result.push_back(old_t); // y           ax + by = GCD (a,b)
+    
+    return result;
+}
 
-    bitset<128> x("1010101"); // 85
-    bitset<128> y("110101");  // 53
+
+bitset<128> largePrimeGen( int numbits) {
+    srand(static_cast<unsigned int>(time(0)));
+    bitset<128> lowerBound = 1ULL << (numbits - 2);
+    bitset<128> upperBound = (1ULL << (numbits - 1)) - 1;
+    bitset<128> guess = lowerBound.to_ullong() + rand() % (upperBound.to_ullong() - lowerBound.to_ullong() + 1);
+
+    if (guess[0] == 0) {
+        guess[0] = 1;
+    }
+
+    while (!(isFermatPrime(guess,30))) {
+        guess = guess.to_ulong() + 2;
+    }
+    return guess;
+}
+
+vector<bitset<128>> keyGen (bitset<128> p , bitset<128> q){
+    
+    bitset<128> n = mulBin(p, q);
+    cout<<n<<endl;
+    bitset<128> phi = subBin(n, subBin(p, subBin(q, one_bitset)));
+    
+    bitset<128> eCandidate;
+    
+    while ( true){
+        eCandidate = bitset<128>(rand() % (phi.to_ulong() - 2) + 2);// Random integer between 3 and totient - 1
+        vector<bitset<128>> bezout = bezoutCofficient(eCandidate, phi);
+        if ( bezout[0] == one_bitset){
+            vector<bitset<128>> key ;
+            key.push_back(bezout[1]);
+            key.push_back(bezout[2]);
+            key.push_back(n);
+            return key;
+        }
+    }
+}
+//bitset<128> encrypt ( bitset<128> e,//encrypt key ( public key)
+//                     bitset<128> n, //
+//                     bitset<128> message){
+//    
+//}
+//
+//bitset<128> decrypt ( bitset<128> d,//decrypt key ( private key)
+//                     bitset<128> n,
+//                     bitset<128> message){
+//    
+//}
+
+int main(){
+
+    bitset<128> x(85); // 85
+    bitset<128> y(53);  // 53
     bitset<128> n("11111");   // 31
-    bitset<128> p(41);
+    bitset<128> a ("10101010001111101010101010100111010101001010101000111010101110101010101");//1570231049044545592661
+    bitset<128> c ("101010100011111010101001010101000111010101110101010101");//11979910757047637
+    
+    bitset<128> b ("101010100011111010101011011010110010101000111010101110101010101"); //6133715455881076053
+    
+    bitset<128> test ("0000000000000000000100000000000000000000000000000001111101000110111101011011101101");
+//
+    bitset<128> p = mulMod(x, y, n);
+    cout<<p<<endl;
 
-//    bitset<128> gcd = findGCD(x, y);
-//    cout<<y<<endl;
+    bitset<128> q = mulBin(x, y);
+    cout<<q<<endl;
 //    cout<<gcd;
+
     
-    bool prime = isFermatPrime(n, 30);
-    cout<<prime;
+//    bitset<128> p = mulBin(x, n);
+//    cout<<p<<endl;
     
+//    bitset<128> q = largePrimeGen(128);
+//    cout<<q<<endl;
+    
+    vector<bitset<128>> key = keyGen(x, y);
+    cout<<"E: "<<key[0]<<endl;
+    
+    cout<<"D:"<<key[1]<<endl;
+    
+    cout<<"N: "<<key[2]<<endl;
     return 0;
 }
