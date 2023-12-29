@@ -361,8 +361,8 @@ vector<bitset<128>> keyGen (bitset<128> p , bitset<128> q){
 
 bitset<128> encrypt ( bitset<128> e,//encrypt key ( public key)
                      bitset<128> n, //
-                     bitset<128> message){
-    return powerMod(message, e, n);
+                     bitset<128> k){
+    return powerMod(k, e, n);
 }
 
 bitset<128> decrypt ( bitset<128> d,//decrypt key ( private key)
