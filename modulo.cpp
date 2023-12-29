@@ -152,17 +152,15 @@ std::bitset<128> multiply(const std::bitset<128> &a, const std::bitset<128> &b)
 bitset<128> mulBin(bitset<128> &a, bitset<128> &b)
 {
     bitset<128> result(0);
-
-    for (int i = 0; i < 127; ++i)
+    for (int i = 0; i < 128; ++i)
     {
-        if (b[i] == 1)
+        if (b[i])
         {
-            result ^= (a << i);
+            result = result + (a << i);
         }
     }
     return result;
 }
-
 bitset<128> addMod(bitset<128> x, bitset<128> b, bitset<128> n)
 {
     bitset<128> con = x + b;
@@ -263,14 +261,10 @@ bool miller_rabin(const std::bitset<128> &n)
 int main()
 {
 
-    std::bitset<128> n("10010001001110011011010001110101");
-    if (miller_rabin(n))
-    {
-        std::cout << n << " is a prime number" << std::endl;
-    }
-    else
-    {
-        std::cout << n << " is not a prime number" << std::endl;
-    }
+    // test mulBin function
+    bitset<128> a(15);
+    bitset<128> b(13);
+    bitset<128> c = mulBin(a, b);
+    cout << c << endl;
     return 0;
 }
