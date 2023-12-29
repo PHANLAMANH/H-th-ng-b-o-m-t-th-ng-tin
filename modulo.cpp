@@ -218,6 +218,48 @@ bitset<128> powerMod(bitset<128> x, bitset<128> a, bitset<128> n)
     return y;
 }
 
+bool miller_rabin(const std::bitset<128> &n)
+{
+    std::bitset<128> a;
+    std::bitset<128> n_1 = subBin(n, 1);
+    std::bitset<128> d = n_1;
+    int s = 0;
+    while (d[0] == 0)
+    {
+        d >>= 1;
+        s++;
+    }
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(2, n_1.to_ulong());
+    for (int i = 0; i < 10; i++)
+    {
+        a = dis(gen);
+        std::bitset<128> x = powerMod(a, d, n);
+        if (x == 1 || x == n_1)
+        {
+            continue;
+        }
+        for (int j = 0; j < s - 1; j++)
+        {
+            x = mulMod(x, x, n);
+            if (x == 1)
+            {
+                return false;
+            }
+            if (x == n_1)
+            {
+                break;
+            }
+        }
+        if (x != n_1)
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
 int main()
 {
 

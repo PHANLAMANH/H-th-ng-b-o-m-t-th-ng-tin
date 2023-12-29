@@ -1,5 +1,7 @@
 #include "test.cpp"
 #include <openssl/sha.h>
+#include <openssl/crypto.h>
+#include <openssl/evp.h>
 #include <iostream>
 #include <string.h>
 using namespace std;
