@@ -11,10 +11,14 @@
 #include <string.h>
 #include <iostream>
 #include <fstream>
-#include <stringstream>
+#include <sstream>
 #include <bitset>
 #include <random>
+#include <vector>
 
+typedef unsigned long ul;
+
+typedef unsigned long long ull;
 
 using namespace std;
 
