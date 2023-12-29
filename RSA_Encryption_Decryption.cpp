@@ -386,7 +386,6 @@ vector<bitset<128>> bezoutCofficient(bitset<128> a, bitset<128> b)
     return result;
 }
 
-<<<<<<< Updated upstream
 bitset<128> largePrimeGen(int numbits)
 {
     srand(static_cast<unsigned int>(time(0)));
@@ -404,82 +403,45 @@ bitset<128> largePrimeGen(int numbits)
         guess = guess.to_ulong() + 2;
     }
     return guess;
-=======
-
-bitset<128> generateRandomBitset() {
-    random_device rd;
-    mt19937 gen(rd());
-    uniform_int_distribution<> dis(numeric_limits<uint64_t>::min(), numeric_limits<uint64_t>::max());
-
-   uint64_t randomNumber = dis(gen);
-   return std::bitset<128>(randomNumber);
-}
-
-bitset<128> generateLargePrime() {
-    bitset<128> n;
-   do {
-       n = generateRandomBitset();
-   } while (!isFermatPrime(n,10));
-
-   return n;
->>>>>>> Stashed changes
 }
 
 vector<bitset<128>> keyGen(bitset<128> p, bitset<128> q)
 {
 
     bitset<128> n = mulBin(p, q);
-<<<<<<< Updated upstream
     cout << n << endl;
-=======
->>>>>>> Stashed changes
     bitset<128> phi = subBin(n, subBin(p, subBin(q, one_bitset)));
 
     bitset<128> eCandidate, d;
-<<<<<<< Updated upstream
+
     do
     {
-        eCandidate = bitset<128>(rand() % (phi.to_ulong() + 2)); // Random value for e, 1 < e < totient
     } while (bezoutCofficient(eCandidate, phi)[0] != 1);
 
     d = bezoutCofficient(eCandidate, phi)[1];
 
     vector<bitset<128>> key;
-=======
-    do {
+
+    do
+    {
         bitset<128> random = bitset<128>(rand());
-        bitset<128> temp =  phi + bitset<128>(2);
-        eCandidate = Mod(random, temp);
-        // Random value for e, 1 < e < totient
-    } while (bezoutCofficient(eCandidate, phi)[0] != 1);
+        return key;
+    }
 
-    d = bezoutCofficient(eCandidate, phi)[1];
-    
-    d = addBin(d, phi);
-    
-    vector<bitset<128>> key ;
->>>>>>> Stashed changes
-    key.push_back(eCandidate);
-    key.push_back(d);
-    key.push_back(n);
-    return key;
+    bitset<128> encrypt(bitset<128> e, // encrypt key ( public key)
+                        bitset<128> n, //
+                        bitset<128> k)
+    {
+        return powerMod(k, e, n);
+    }
+
+    bitset<128> decrypt(bitset<128> d, // decrypt key ( private key)
+                        bitset<128> n,
+                        bitset<128> c)
+    {
+        return powerMod(c, d, n);
+    }
 }
-
-bitset<128> encrypt(bitset<128> e, // encrypt key ( public key)
-                    bitset<128> n, //
-                    bitset<128> k)
-{
-    return powerMod(k, e, n);
-}
-
-bitset<128> decrypt(bitset<128> d, // decrypt key ( private key)
-                    bitset<128> n,
-                    bitset<128> c)
-{
-    return powerMod(c, d, n);
-}
-
-<<<<<<< Updated upstream
 // int main(){
 
 // //    bitset<128> x(85); // 85
@@ -503,36 +465,34 @@ bitset<128> decrypt(bitset<128> d, // decrypt key ( private key)
 
 //     return 0;
 // }
-=======
-int main(){
+// int main()
+// {
 
-//    bitset<128> x(85); // 85
-//    bitset<128> y(53);  // 53
-//    bitset<128> n("11111");   // 31
-//    
-//    bitset<128> u (15);
-//    bitset<128> v (3);
-//    
-//    
-//    
+//     //    bitset<128> x(85); // 85
+//     //    bitset<128> y(53);  // 53
+//     //    bitset<128> n("11111");   // 31
+//     //
+//     //    bitset<128> u (15);
+//     //    bitset<128> v (3);
+//     //
+//     //
+//     //
 
-    
-    bitset<128> q = generateLargePrime();
-    cout<<q<<endl;
-    bitset<128> p  = generateLargePrime();
-    cout<<p<<endl;
-    
-    vector<bitset<128>> Alicekey = keyGen(p, q); //AliceKey = { eA,dA,n}
-//    
-    bitset<128> p1 = generateLargePrime();
-    cout<<p1<<endl;
-    bitset<128> q1 = generateLargePrime();
-    cout<<q1<<endl;
-    vector<bitset<128>> Bobkey = keyGen(p1, q1); // BobKey = { eB,dB,n}
-//    
-//    bitset<128> message ("010101010101001011");
-//    bitset<128> encr = encrypt(Bobkey[0], Bobkey[2], message);
-//    
-    return 0;
-}
->>>>>>> Stashed changes
+//     bitset<128> q = generateLargePrime();
+//     cout << q << endl;
+//     bitset<128> p = generateLargePrime();
+//     cout << p << endl;
+
+//     vector<bitset<128>> Alicekey = keyGen(p, q); // AliceKey = { eA,dA,n}
+//     //
+//     bitset<128> p1 = generateLargePrime();
+//     cout << p1 << endl;
+//     bitset<128> q1 = generateLargePrime();
+//     cout << q1 << endl;
+//     vector<bitset<128>> Bobkey = keyGen(p1, q1); // BobKey = { eB,dB,n}
+//                                                  //
+//                                                  //    bitset<128> message ("010101010101001011");
+//                                                  //    bitset<128> encr = encrypt(Bobkey[0], Bobkey[2], message);
+//                                                  //
+//     return 0;
+// }
