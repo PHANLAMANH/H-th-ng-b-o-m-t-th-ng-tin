@@ -3,8 +3,7 @@
     {
       "name": "windows-gcc-x64",
       "includePath": [
-        "${workspaceFolder}/**",
-        "${workspaceFolder}/cryptopp-master/**"
+        "${workspaceFolder}/**"
       ],
       "compilerPath": "C:/Strawberry/c/bin/gcc.exe",
       "cStandard": "${default}",

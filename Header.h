@@ -11,9 +11,12 @@
 #include <string.h>
 #include <iostream>
 #include <fstream>
-#include <sstream>
+#include <stringstream>
 #include <bitset>
+#include <random>
+
 
 using namespace std;
+
 
 #endif /* Header_h */
