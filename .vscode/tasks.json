@@ -1,0 +1,25 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "type": "shell",
+            "command": "g++",
+            "args": [
+                "-g",
+                "${workspaceFolder}/**",
+                "-o",
+                "${workspaceFolder}/**",
+                "-I",
+                "${workspaceFolder}/cryptopp-master",
+                "-L",
+                "${workspaceFolder}/cryptopp-master",
+                "-lcryptopp"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}
