@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <typeinfo>
 #include "structures.h"
+
 // S-box và Rcon đã được cung cấp
 
 // Hàm thực hiện hoán vị byte theo S-box

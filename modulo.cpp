@@ -53,6 +53,16 @@ bool operator>(const std::bitset<128> &a, const std::bitset<128> &b)
     return false;
 }
 
+bool operator<(const std::bitset<128> &a, const std::bitset<128> &b)
+{
+    for (int i = 127; i >= 0; i--)
+    {
+        if (a[i] ^ b[i])
+            return b[i];
+    }
+    return false;
+}
+
 // generate operator+ for std::bitset<128>
 std::bitset<128> operator+(const std::bitset<128> &a, const std::bitset<128> &b)
 {
@@ -115,20 +125,6 @@ bool operator>=(const std::bitset<128> &a, const std::bitset<128> &b)
     return true;
 }
 
-// generate operator>>= for std::bitset<128>
-std::bitset<128> operator>>=(std::bitset<128> &a, int n)
-{
-    std::bitset<128> result(0);
-    for (int i = 0; i < 128; ++i)
-    {
-        if (i + n < 128)
-        {
-            result[i] = a[i + n];
-        }
-    }
-    return result;
-}
-
 // generate operator% for std::bitset<128>
 std::bitset<128> modulo(const std::bitset<128> &a, const std::bitset<128> &b)
 {
@@ -153,79 +149,86 @@ std::bitset<128> multiply(const std::bitset<128> &a, const std::bitset<128> &b)
     }
     return result;
 }
-
-std::bitset<128> powerModulo(const std::bitset<128> &base, std::bitset<128> exp, const std::bitset<128> &mod)
+bitset<128> mulBin(bitset<128> &a, bitset<128> &b)
 {
-    std::bitset<128> result(1);
-    std::bitset<128> tempBase = base;
-    while (exp > 0)
+    bitset<128> result(0);
+
+    for (int i = 0; i < 127; ++i)
     {
-        if (exp[0])
+        if (b[i] == 1)
         {
-            result = modulo(multiply(result, tempBase), mod);
+            result ^= (a << i);
         }
-        tempBase = modulo(multiply(tempBase, tempBase), mod);
-        exp = exp >> 1;
     }
     return result;
 }
-bool baillie_psw(const std::bitset<128> &n)
-{
-    if (n == 2 || n == 3)
-        return true;
-    if (n <= 1 || n[0])
-        return false;
 
-    std::bitset<128> d = subBin(n, 1);
-    while (!d[0])
+bitset<128> addMod(bitset<128> x, bitset<128> b, bitset<128> n)
+{
+    bitset<128> con = x + b;
+    if (con < n)
     {
-        d >>= 1;
+        return con;
+    }
+    else
+    {
+        bitset<128> res = modulo(con, n);
+        return res;
+    }
+}
+
+bitset<128> mulMod(bitset<128> x, bitset<128> y, bitset<128> n)
+{
+    bitset<128> P(0);
+
+    if (y[0] == 1)
+    {
+        P = x;
     }
 
-    std::default_random_engine generator;
-    std::uniform_int_distribution<uint64_t> distribution(1, n.to_ullong());
-
-    for (int i = 0; i < 5; ++i)
+    for (int i = 1; i < 127; i++)
     {
-        std::bitset<128> x = distribution(generator);
-        std::bitset<128> y = powerModulo(x, d, n);
-        if (y != 1 && y != subBin(n, 1))
+        // x ≡ 2*x (mod n)
+        x <<= 1;
+        x = modulo(x, n);
+
+        // z = yi * x
+
+        bitset<128> yi(y[i]);
+        bitset<128> z = mulBin(yi, x);
+
+        // P ≡ (P + z) (mod n)
+        P = addMod(P, z, n);
+    }
+    return P;
+}
+
+bitset<128> powerMod(bitset<128> x, bitset<128> a, bitset<128> n)
+{
+    bitset<128> y(1);
+
+    for (int i = 127; i >= 0; i--)
+    {
+        y = mulMod(y, y, n);
+        if (a[i] == 1)
         {
-            bool composite = true;
-            for (int r = 1; r < d.count(); ++r)
-            {
-                y = powerModulo(y, 2, n);
-                if (y == subBin(n, 1))
-                {
-                    composite = false;
-                    break;
-                }
-            }
-            if (composite)
-                return false;
+            y = mulMod(y, x, n);
         }
     }
-
-    return true;
+    return y;
 }
 
 int main()
 {
-    // test powm function
-    std::bitset<128> base(2);
-    std::bitset<128> exp(3);
-    std::bitset<128> mod(5);
-    std::bitset<128> result = powerModulo(base, exp, mod);
-    std::cout << result << std::endl;
-    // check prime number
-    std::bitset<128> n(97);
-    std::cout << baillie_psw(97) << std::endl;
-    if (baillie_psw(n))
+
+    std::bitset<128> n("10010001001110011011010001110101");
+    if (miller_rabin(n))
     {
-        std::cout << "prime" << std::endl;
+        std::cout << n << " is a prime number" << std::endl;
     }
     else
     {
-        std::cout << "composite" << std::endl;
+        std::cout << n << " is not a prime number" << std::endl;
     }
+    return 0;
 }
