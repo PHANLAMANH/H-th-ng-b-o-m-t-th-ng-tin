@@ -325,105 +325,105 @@ std::string blocksToMessage(const std::vector<std::bitset<128>> &message_blocks,
     return message;
 }
 
-int main()
-{
-    // generate original key using random number generator bitset<128> binary
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis(0, 1);
-    std::bitset<128> original_key;
-    for (int i = 0; i < 16; ++i)
-    {
-        original_key[i] = dis(gen);
-    }
-    std::cout << "Original key: " << original_key << std::endl;
+// int main()
+// {
+//     // generate original key using random number generator bitset<128> binary
+//     std::random_device rd;
+//     std::mt19937 gen(rd());
+//     std::uniform_int_distribution<> dis(0, 1);
+//     std::bitset<128> original_key;
+//     for (int i = 0; i < 16; ++i)
+//     {
+//         original_key[i] = dis(gen);
+//     }
+//     std::cout << "Original key: " << original_key << std::endl;
 
-    // Sinh khóa k
-    std::bitset<128> generated_key = generateKey(original_key);
+//     // Sinh khóa k
+//     std::bitset<128> generated_key = generateKey(original_key);
 
-    // In ra khóa đã sinh
-    std::cout << "Generated key K: " << generated_key << std::endl;
+//     // In ra khóa đã sinh
+//     std::cout << "Generated key K: " << generated_key << std::endl;
 
-    std::ifstream file("mess.txt");
-    if (!file)
-    {
-        std::cerr << "Error opening file: mess.txt" << std::endl;
-        return 1; // or handle the error in a way that is appropriate for your program
-    }
+//     std::ifstream file("mess.txt");
+//     if (!file)
+//     {
+//         std::cerr << "Error opening file: mess.txt" << std::endl;
+//         return 1; // or handle the error in a way that is appropriate for your program
+//     }
 
-    std::stringstream buffer;
-    buffer << file.rdbuf();
-    std::string message = buffer.str();
+//     std::stringstream buffer;
+//     buffer << file.rdbuf();
+//     std::string message = buffer.str();
 
-    // Divide the message into 128-bit blocks
-    std::vector<std::bitset<128>> message_blocks = divideMessageIntoBlocks(message);
+//     // Divide the message into 128-bit blocks
+//     std::vector<std::bitset<128>> message_blocks = divideMessageIntoBlocks(message);
 
-    // In ra các khối tin nhắn 128 bit
-    for (const auto &block : message_blocks)
-    {
-        std::cout << "Block: " << block << std::endl;
-    }
+//     // In ra các khối tin nhắn 128 bit
+//     for (const auto &block : message_blocks)
+//     {
+//         std::cout << "Block: " << block << std::endl;
+//     }
 
-    std::ofstream outFile("encrypted_blocks.txt");
-    if (!outFile)
-    {
-        std::cerr << "Error opening output file: encrypted_blocks.txt" << std::endl;
-        return 1;
-    }
+//     std::ofstream outFile("encrypted_blocks.txt");
+//     if (!outFile)
+//     {
+//         std::cerr << "Error opening output file: encrypted_blocks.txt" << std::endl;
+//         return 1;
+//     }
 
-    for (const auto &block : message_blocks)
-    {
-        std::bitset<128> encrypted_block = encryptBlock(generated_key, block);
-        outFile << encrypted_block << std::endl;
-    }
-    outFile.close();
+//     for (const auto &block : message_blocks)
+//     {
+//         std::bitset<128> encrypted_block = encryptBlock(generated_key, block);
+//         outFile << encrypted_block << std::endl;
+//     }
+//     outFile.close();
 
-    std::ifstream inFile("encrypted_blocks.txt");
-    if (!inFile)
-    {
-        std::cerr << "Error opening input file: encrypted_blocks.txt" << std::endl;
-        return 1;
-    }
+//     std::ifstream inFile("encrypted_blocks.txt");
+//     if (!inFile)
+//     {
+//         std::cerr << "Error opening input file: encrypted_blocks.txt" << std::endl;
+//         return 1;
+//     }
 
-    std::vector<std::bitset<128>> encrypted_blocks;
-    std::string line;
-    while (std::getline(inFile, line))
-    {
-        encrypted_blocks.push_back(std::bitset<128>(line));
-    }
-    inFile.close();
+//     std::vector<std::bitset<128>> encrypted_blocks;
+//     std::string line;
+//     while (std::getline(inFile, line))
+//     {
+//         encrypted_blocks.push_back(std::bitset<128>(line));
+//     }
+//     inFile.close();
 
-    std::vector<std::bitset<128>> decrypted_blocks;
-    for (const auto &block : encrypted_blocks)
-    {
-        decrypted_blocks.push_back(decryptBlock(generated_key, block));
-    }
+//     std::vector<std::bitset<128>> decrypted_blocks;
+//     for (const auto &block : encrypted_blocks)
+//     {
+//         decrypted_blocks.push_back(decryptBlock(generated_key, block));
+//     }
 
-    std::string decrypted_message = blocksToMessage(decrypted_blocks, message.length());
+//     std::string decrypted_message = blocksToMessage(decrypted_blocks, message.length());
 
-    std::ofstream outFileDecrypted("decrypted_message.txt");
-    if (!outFile)
-    {
-        std::cerr << "Error opening output file: decrypted_message.txt" << std::endl;
-        return 1;
-    }
-    outFile << "Decrypted Message: " << decrypted_message << std::endl;
-    outFile.close();
+//     std::ofstream outFileDecrypted("decrypted_message.txt");
+//     if (!outFile)
+//     {
+//         std::cerr << "Error opening output file: decrypted_message.txt" << std::endl;
+//         return 1;
+//     }
+//     outFile << "Decrypted Message: " << decrypted_message << std::endl;
+//     outFile.close();
 
-    return 0;
-    // std::bitset<8> a(0b11011010); // Ví dụ giá trị bitset a
-    // std::bitset<8> b(0b11110000); // Ví dụ giá trị bitset b
+//     return 0;
+//     // std::bitset<8> a(0b11011010); // Ví dụ giá trị bitset a
+//     // std::bitset<8> b(0b11110000); // Ví dụ giá trị bitset b
 
-    // std::bitset<16> result = a.to_ulong() + b.to_ulong(); // Thực hiện phép nhân
+//     // std::bitset<16> result = a.to_ulong() + b.to_ulong(); // Thực hiện phép nhân
 
-    // if (result.count() > 8)
-    // {
-    //     std::cout << "Tran" << std::endl;
-    // }
-    // else
-    // {
-    //     std::cout << "Khong tran." << std::endl;
-    // }
+//     // if (result.count() > 8)
+//     // {
+//     //     std::cout << "Tran" << std::endl;
+//     // }
+//     // else
+//     // {
+//     //     std::cout << "Khong tran." << std::endl;
+//     // }
 
-    // return 0;
-}
+//     // return 0;
+// }

@@ -258,13 +258,13 @@ bool miller_rabin(const std::bitset<128> &n)
     return true;
 }
 
-int main()
-{
+// int main()
+// {
 
-    // test mulBin function
-    bitset<128> a(15);
-    bitset<128> b(13);
-    bitset<128> c = mulBin(a, b);
-    cout << c << endl;
-    return 0;
-}
+//     // test mulBin function
+//     bitset<128> a(15);
+//     bitset<128> b(13);
+//     bitset<128> c = mulBin(a, b);
+//     cout << c << endl;
+//     return 0;
+// }

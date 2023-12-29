@@ -295,26 +295,26 @@ using std::cout;
 using std::endl;
 using std::string;
 
-int main(int /* argc */, const char ** /* argv */)
-{
-    std::ifstream inFile("text.txt");
-    if (!inFile)
-    {
-        std::cerr << "Error opening input file" << std::endl;
-        return 1;
-    }
+// int main(int /* argc */, const char ** /* argv */)
+// {
+//     std::ifstream inFile("text.txt");
+//     if (!inFile)
+//     {
+//         std::cerr << "Error opening input file" << std::endl;
+//         return 1;
+//     }
 
-    std::stringstream buffer;
-    buffer << inFile.rdbuf();
-    const std::string input = buffer.str();
+//     std::stringstream buffer;
+//     buffer << inFile.rdbuf();
+//     const std::string input = buffer.str();
 
-    inFile.close();
+//     inFile.close();
 
-    SHA1 checksum;
-    checksum.update(input);
-    const string hash = checksum.final();
+//     SHA1 checksum;
+//     checksum.update(input);
+//     const string hash = checksum.final();
 
-    cout << "The SHA-1 of \"" << input << "\" is: " << hash << endl;
+//     cout << "The SHA-1 of \"" << input << "\" is: " << hash << endl;
 
-    return 0;
-}
+//     return 0;
+// }
