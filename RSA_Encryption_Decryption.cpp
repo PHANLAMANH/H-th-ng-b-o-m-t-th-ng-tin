@@ -421,8 +421,6 @@ vector<bitset<128>> keyGen(bitset<128> p, bitset<128> q)
     d = bezoutCofficient(eCandidate, phi)[1];
 
     vector<bitset<128>> key;
-
-    do
     {
         bitset<128> random = bitset<128>(rand());
         return key;
