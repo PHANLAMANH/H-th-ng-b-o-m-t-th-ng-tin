@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <typeinfo>
 #include "structures.h"
+// nothing here
 
 // S-box và Rcon đã được cung cấp
 
