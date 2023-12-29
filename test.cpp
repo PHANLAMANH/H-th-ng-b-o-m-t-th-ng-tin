@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <typeinfo>
 #include "structures.h"
+#include <fstream>
 // nothing here
 
 // S-box và Rcon đã được cung cấp
@@ -343,29 +344,71 @@ int main()
     // In ra khóa đã sinh
     std::cout << "Generated key K: " << generated_key << std::endl;
 
-    std::string message = "this is a test, my name is Lam Anh. "; // Tin nhắn cần chia thành các khối
+    std::ifstream file("mess.txt");
+    if (!file)
+    {
+        std::cerr << "Error opening file: mess.txt" << std::endl;
+        return 1; // or handle the error in a way that is appropriate for your program
+    }
 
-    // // Chia tin nhắn thành các khối 128 bit
-    // std::vector<std::bitset<128>> message_blocks = divideMessageIntoBlocks(message);
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    std::string message = buffer.str();
 
-    // // In ra các khối tin nhắn 128 bit
-    // for (const auto &block : message_blocks)
-    // {
-    //     std::cout << "Block: " << block << std::endl;
-    // }
-    // for (const auto &block : message_blocks)
-    // {
-    //     std::bitset<128> encrypted_block = encryptBlock(generated_key, block);
-    //     std::cout << "Encrypted Block: " << encrypted_block << std::endl;
-    // }
-    // for (const auto &block : message_blocks)
-    // {
-    //     std::bitset<128> decrypted_block = decryptBlock(generated_key, block);
-    //     std::cout << "Decrypted Block: " << decrypted_block << std::endl;
-    // }
-    // // Chuyển các khối đã giải mã thành tin nhắn ban đầu
-    // std::string decrypted_message = blocksToMessage(message_blocks, message.length());
-    // std::cout << "Decrypted Message: " << decrypted_message << std::endl;
+    // Divide the message into 128-bit blocks
+    std::vector<std::bitset<128>> message_blocks = divideMessageIntoBlocks(message);
+
+    // In ra các khối tin nhắn 128 bit
+    for (const auto &block : message_blocks)
+    {
+        std::cout << "Block: " << block << std::endl;
+    }
+
+    std::ofstream outFile("encrypted_blocks.txt");
+    if (!outFile)
+    {
+        std::cerr << "Error opening output file: encrypted_blocks.txt" << std::endl;
+        return 1;
+    }
+
+    for (const auto &block : message_blocks)
+    {
+        std::bitset<128> encrypted_block = encryptBlock(generated_key, block);
+        outFile << encrypted_block << std::endl;
+    }
+    outFile.close();
+
+    std::ifstream inFile("encrypted_blocks.txt");
+    if (!inFile)
+    {
+        std::cerr << "Error opening input file: encrypted_blocks.txt" << std::endl;
+        return 1;
+    }
+
+    std::vector<std::bitset<128>> encrypted_blocks;
+    std::string line;
+    while (std::getline(inFile, line))
+    {
+        encrypted_blocks.push_back(std::bitset<128>(line));
+    }
+    inFile.close();
+
+    std::vector<std::bitset<128>> decrypted_blocks;
+    for (const auto &block : encrypted_blocks)
+    {
+        decrypted_blocks.push_back(decryptBlock(generated_key, block));
+    }
+
+    std::string decrypted_message = blocksToMessage(decrypted_blocks, message.length());
+
+    std::ofstream outFileDecrypted("decrypted_message.txt");
+    if (!outFile)
+    {
+        std::cerr << "Error opening output file: decrypted_message.txt" << std::endl;
+        return 1;
+    }
+    outFile << "Decrypted Message: " << decrypted_message << std::endl;
+    outFile.close();
 
     return 0;
     // std::bitset<8> a(0b11011010); // Ví dụ giá trị bitset a
