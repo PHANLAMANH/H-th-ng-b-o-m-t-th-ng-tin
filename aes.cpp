@@ -325,83 +325,83 @@ std::string blocksToMessage(const std::vector<std::bitset<128>> &message_blocks,
     return message;
 }
 
-int main()
-{
-    // generate original key using random number generator bitset<128> binary
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis(0, 1);
-    std::bitset<128> original_key;
-    for (int i = 0; i < 16; ++i)
-    {
-        original_key[i] = dis(gen);
-    }
-    std::cout << "Original key: " << original_key << std::endl;
+// int main()
+// {
+//     // generate original key using random number generator bitset<128> binary
+//     std::random_device rd;
+//     std::mt19937 gen(rd());
+//     std::uniform_int_distribution<> dis(0, 1);
+//     std::bitset<128> original_key;
+//     for (int i = 0; i < 16; ++i)
+//     {
+//         original_key[i] = dis(gen);
+//     }
+//     std::cout << "Original key: " << original_key << std::endl;
 
-    // Sinh khóa k
-    std::bitset<128> generated_key = generateKey(original_key);
+//     // Sinh khóa k
+//     std::bitset<128> generated_key = generateKey(original_key);
 
-    // đọc file mess.txt và lưu vào message
-    std::ifstream inFile("mess.txt");
-    if (!inFile)
-    {
-        std::cerr << "Error opening input file: mess.txt" << std::endl;
-        return 1;
-    }
-    std::string message;
-    std::getline(inFile, message);
-    inFile.close();
+//     // đọc file mess.txt và lưu vào message
+//     std::ifstream inFile("mess.txt");
+//     if (!inFile)
+//     {
+//         std::cerr << "Error opening input file: mess.txt" << std::endl;
+//         return 1;
+//     }
+//     std::string message;
+//     std::getline(inFile, message);
+//     inFile.close();
 
-    // Chia tin nhắn thành các khối 128 bit
-    std::vector<std::bitset<128>> message_blocks = divideMessageIntoBlocks(message);
+//     // Chia tin nhắn thành các khối 128 bit
+//     std::vector<std::bitset<128>> message_blocks = divideMessageIntoBlocks(message);
 
-    // Mã hóa các khối tin nhắn và in các khối văn bản mã hóa ra file encrypted_aes.txt
-    std::ofstream outFile("encrypted_aes.txt");
-    if (!outFile)
-    {
-        std::cerr << "Error opening output file: encrypted_aes.txt" << std::endl;
-        return 1;
-    }
+//     // Mã hóa các khối tin nhắn và in các khối văn bản mã hóa ra file encrypted_aes.txt
+//     std::ofstream outFile("encrypted_aes.txt");
+//     if (!outFile)
+//     {
+//         std::cerr << "Error opening output file: encrypted_aes.txt" << std::endl;
+//         return 1;
+//     }
 
-    for (const auto &block : message_blocks)
-    {
-        std::bitset<128> encrypted_block = encryptBlock(generated_key, block);
-        outFile << encrypted_block << std::endl;
-    }
-    outFile.close();
+//     for (const auto &block : message_blocks)
+//     {
+//         std::bitset<128> encrypted_block = encryptBlock(generated_key, block);
+//         outFile << encrypted_block << std::endl;
+//     }
+//     outFile.close();
 
-    // Đọc file encrypted_aes.txt, giải mã các khối và in ra màn hình
-    std::ifstream inFile2("encrypted_aes.txt");
-    if (!inFile2)
-    {
-        std::cerr << "Error opening input file: encrypted_aes.txt" << std::endl;
-        return 1;
-    }
+//     // Đọc file encrypted_aes.txt, giải mã các khối và in ra màn hình
+//     std::ifstream inFile2("encrypted_aes.txt");
+//     if (!inFile2)
+//     {
+//         std::cerr << "Error opening input file: encrypted_aes.txt" << std::endl;
+//         return 1;
+//     }
 
-    std::vector<std::bitset<128>> encrypted_blocks;
-    std::string line;
-    while (std::getline(inFile2, line))
-    {
-        encrypted_blocks.push_back(std::bitset<128>(line));
-    }
-    inFile2.close();
+//     std::vector<std::bitset<128>> encrypted_blocks;
+//     std::string line;
+//     while (std::getline(inFile2, line))
+//     {
+//         encrypted_blocks.push_back(std::bitset<128>(line));
+//     }
+//     inFile2.close();
 
-    // Chuyển các khối đã mã hóa thành tin nhắn ban đầu và in vào decrypted_aes.txt
-    std::ofstream outFile2("decrypted_aes.txt");
-    if (!outFile2)
-    {
-        std::cerr << "Error opening output file: decrypted_aes.txt" << std::endl;
-        return 1;
-    }
+//     // Chuyển các khối đã mã hóa thành tin nhắn ban đầu và in vào decrypted_aes.txt
+//     std::ofstream outFile2("decrypted_aes.txt");
+//     if (!outFile2)
+//     {
+//         std::cerr << "Error opening output file: decrypted_aes.txt" << std::endl;
+//         return 1;
+//     }
 
-    for (const auto &block : encrypted_blocks)
-    {
-        std::bitset<128> decrypted_block = decryptBlock(generated_key, block);
-        // sử dụng hàm blocksToMessage để chuyển các khối đã giải mã thành tin nhắn ban đầu
-        std::string decrypted_message = blocksToMessage(message_blocks, message.length());
-        outFile2 << decrypted_message << std::endl;
-    }
-    outFile2.close();
+//     for (const auto &block : encrypted_blocks)
+//     {
+//         std::bitset<128> decrypted_block = decryptBlock(generated_key, block);
+//         // sử dụng hàm blocksToMessage để chuyển các khối đã giải mã thành tin nhắn ban đầu
+//         std::string decrypted_message = blocksToMessage(message_blocks, message.length());
+//         outFile2 << decrypted_message << std::endl;
+//     }
+//     outFile2.close();
 
-    return 0;
-}
+//     return 0;
+// }

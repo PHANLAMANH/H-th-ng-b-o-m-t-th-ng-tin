@@ -482,49 +482,49 @@ bitset<128> decrypt(bitset<128> d, // decrypt key ( private key)
     return powerMod(c, d, n);
 }
 
-int main()
-{
+// int main()
+// {
 
-    //     bitset<128> a(85);
-    //     bitset<128> b(17);
+//     //     bitset<128> a(85);
+//     //     bitset<128> b(17);
 
-    bitset<128> q = generateLargePrime();
-    cout << q << endl;
-    bitset<128> p = generateLargePrime();
-    cout << p << endl;
+//     bitset<128> q = generateLargePrime();
+//     cout << q << endl;
+//     bitset<128> p = generateLargePrime();
+//     cout << p << endl;
 
-    bitset<128> p_1 = subBin(p, one_bitset);
-    bitset<128> q_1 = subBin(q, one_bitset);
-    bitset<128> phi = mulBin(p_1, q_1);
-    vector<bitset<128>> Alicekey = keyGen(p, q); // AliceKey = { eA,dA,n}
-    for (int i = 0; i < 3; i++)
-    {
-        cout << Alicekey[i] << endl;
-    }
-    cout << "Phi:" << phi << endl;
-    cout << "Test: " << endl;
-    bitset<128> test = mulMod(Alicekey[0], Alicekey[1], phi);
-    cout << test << endl;
-    //     bitset<128> test = extendedEuclid(a, b);
-    //     cout<<test;
-    //
-    //     bitset<128> p1 = generateLargePrime();
-    //     cout << p1 << endl;
-    //     bitset<128> q1 = generateLargePrime();
-    //     cout << q1 << endl;
-    //     vector<bitset<128>> Bobkey = keyGen(p1, q1); // BobKey = { eB,dB,n}
-
-    return 0;
-}
-
+//     bitset<128> p_1 = subBin(p, one_bitset);
+//     bitset<128> q_1 = subBin(q, one_bitset);
+//     bitset<128> phi = mulBin(p_1, q_1);
 //     vector<bitset<128>> Alicekey = keyGen(p, q); // AliceKey = { eA,dA,n}
+//     for (int i = 0; i < 3; i++)
+//     {
+//         cout << Alicekey[i] << endl;
+//     }
+//     cout << "Phi:" << phi << endl;
+//     cout << "Test: " << endl;
+//     bitset<128> test = mulMod(Alicekey[0], Alicekey[1], phi);
+//     cout << test << endl;
+//     //     bitset<128> test = extendedEuclid(a, b);
+//     //     cout<<test;
 //     //
-//     bitset<128> p1 = generateLargePrime();
-//     cout << p1 << endl;
-//     bitset<128> q1 = generateLargePrime();
-//     cout << q1 << endl;
-//     vector<bitset<128>> Bobkey = keyGen(p1, q1); // BobKey = { eB,dB,n}
-//                                                  //
-//                                                  //    bitset<128> message ("010101010101001011");
-//                                                  //    bitset<128> encr = encrypt(Bobkey[0], Bobkey[2], message);
-//                                                  //
+//     //     bitset<128> p1 = generateLargePrime();
+//     //     cout << p1 << endl;
+//     //     bitset<128> q1 = generateLargePrime();
+//     //     cout << q1 << endl;
+//     //     vector<bitset<128>> Bobkey = keyGen(p1, q1); // BobKey = { eB,dB,n}
+
+//     return 0;
+// }
+
+// //     vector<bitset<128>> Alicekey = keyGen(p, q); // AliceKey = { eA,dA,n}
+// //     //
+// //     bitset<128> p1 = generateLargePrime();
+// //     cout << p1 << endl;
+// //     bitset<128> q1 = generateLargePrime();
+// //     cout << q1 << endl;
+// //     vector<bitset<128>> Bobkey = keyGen(p1, q1); // BobKey = { eB,dB,n}
+// //                                                  //
+// //                                                  //    bitset<128> message ("010101010101001011");
+// //                                                  //    bitset<128> encr = encrypt(Bobkey[0], Bobkey[2], message);
+// //                                                  //
