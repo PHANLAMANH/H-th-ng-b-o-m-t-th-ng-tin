@@ -515,3 +515,16 @@ bitset<128> decrypt(bitset<128> d, // decrypt key ( private key)
      return 0;
  }
 
+    //     vector<bitset<128>> Alicekey = keyGen(p, q); // AliceKey = { eA,dA,n}
+    //     //
+    //     bitset<128> p1 = generateLargePrime();
+    //     cout << p1 << endl;
+    //     bitset<128> q1 = generateLargePrime();
+    //     cout << q1 << endl;
+    //     vector<bitset<128>> Bobkey = keyGen(p1, q1); // BobKey = { eB,dB,n}
+    //                                                  //
+    //                                                  //    bitset<128> message ("010101010101001011");
+    //                                                  //    bitset<128> encr = encrypt(Bobkey[0], Bobkey[2], message);
+    //                                                  //
+    //     return 0;
+    // }
