@@ -386,23 +386,25 @@ vector<bitset<128>> bezoutCofficient(bitset<128> a, bitset<128> b)
     return result;
 }
 
-bitset<128> largePrimeGen(int numbits)
+bitset<128> generateRandomBitset()
 {
-    srand(static_cast<unsigned int>(time(0)));
-    bitset<128> lowerBound = 1ULL << (numbits - 2);
-    bitset<128> upperBound = (1ULL << (numbits - 1)) - 1;
-    bitset<128> guess = lowerBound.to_ullong() + rand() % (upperBound.to_ullong() - lowerBound.to_ullong() + 1);
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_int_distribution<> dis(numeric_limits<int>::min(), numeric_limits<int>::max());
 
-    if (guess[0] == 0)
-    {
-        guess[0] = 1;
-    }
+    uint64_t randomNumber = dis(gen);
+    return std::bitset<128>(randomNumber);
+}
 
-    while (!(isFermatPrime(guess, 30)))
+bitset<128> generateLargePrime()
+{
+    bitset<128> n;
+    do
     {
-        guess = guess.to_ulong() + 2;
-    }
-    return guess;
+        n = generateRandomBitset();
+    } while (!isFermatPrime(n, 10));
+
+    return n;
 }
 
 vector<bitset<128>> keyGen(bitset<128> p, bitset<128> q)
@@ -413,32 +415,37 @@ vector<bitset<128>> keyGen(bitset<128> p, bitset<128> q)
     bitset<128> phi = subBin(n, subBin(p, subBin(q, one_bitset)));
 
     bitset<128> eCandidate, d;
-
     do
     {
+        bitset<128> random = bitset<128>(rand());
+        bitset<128> temp = phi + bitset<128>(2);
+        eCandidate = Mod(random, temp);
+        // Random value for e, 1 < e < totient
     } while (bezoutCofficient(eCandidate, phi)[0] != 1);
 
     d = bezoutCofficient(eCandidate, phi)[1];
 
+    d = addBin(d, phi);
+
     vector<bitset<128>> key;
-    {
-        bitset<128> random = bitset<128>(rand());
-        return key;
-    }
+    key.push_back(eCandidate);
+    key.push_back(d);
+    key.push_back(n);
+    return key;
+}
 
-    bitset<128> encrypt(bitset<128> e, // encrypt key ( public key)
-                        bitset<128> n, //
-                        bitset<128> k)
-    {
-        return powerMod(k, e, n);
-    }
+bitset<128> encrypt(bitset<128> e, // encrypt key ( public key)
+                    bitset<128> n, //
+                    bitset<128> k)
+{
+    return powerMod(k, e, n);
+}
 
-    bitset<128> decrypt(bitset<128> d, // decrypt key ( private key)
-                        bitset<128> n,
-                        bitset<128> c)
-    {
-        return powerMod(c, d, n);
-    }
+bitset<128> decrypt(bitset<128> d, // decrypt key ( private key)
+                    bitset<128> n,
+                    bitset<128> c)
+{
+    return powerMod(c, d, n);
 }
 // int main(){
 
