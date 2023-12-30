@@ -2,13 +2,7 @@
 #ifndef SHA1_HPP
 #define SHA1_HPP
 
-#include <cstdint>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <sstream>
-#include <string>
-#include <bitset>
+#include "Header.h"
 
 class SHA1
 {
