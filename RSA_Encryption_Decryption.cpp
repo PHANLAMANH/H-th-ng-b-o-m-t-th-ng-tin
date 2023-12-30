@@ -391,14 +391,9 @@ bitset<128> generateRandomBitset()
     random_device rd;
     mt19937 gen(rd());
     uniform_int_distribution<> dis(numeric_limits<int>::min(), numeric_limits<int>::max());
-
-<<<<<<< HEAD
     uint64_t randomNumber = dis(gen);
     return bitset<128>(randomNumber);
-    == == == =
-                 uint64_t randomNumber = dis(gen);
     return std::bitset<128>(randomNumber);
->>>>>>> main
 }
 
 bitset<128> generateLargePrime()
@@ -504,5 +499,5 @@ int main()
     //                                                  //    bitset<128> message ("010101010101001011");
     //                                                  //    bitset<128> encr = encrypt(Bobkey[0], Bobkey[2], message);
     //                                                  //
-    //     return 0;
-    // }
+    return 0;
+}
