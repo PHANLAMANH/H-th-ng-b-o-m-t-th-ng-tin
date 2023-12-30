@@ -11,10 +11,10 @@
                 "-o",
                 "${workspaceFolder}/**",
                 "-I",
-                "${workspaceFolder}/cryptopp-master",
-                "-L",
-                "${workspaceFolder}/cryptopp-master",
-                "-lcryptopp"
+                "C:\\Program Files\\OpenSSL-Win64",
+                "-lssl",
+                "C:\\Program Files\\OpenSSL-Win64",
+                "-lcrypto"
             ],
             "group": {
                 "kind": "build",
