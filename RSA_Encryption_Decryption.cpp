@@ -470,34 +470,34 @@ bitset<128> decrypt(bitset<128> d, // decrypt key ( private key)
 
 //     return 0;
 // }
-// int main()
-// {
+int main()
+{
 
-//     //    bitset<128> x(85); // 85
-//     //    bitset<128> y(53);  // 53
-//     //    bitset<128> n("11111");   // 31
-//     //
-//     //    bitset<128> u (15);
-//     //    bitset<128> v (3);
-//     //
-//     //
-//     //
+    //    bitset<128> x(85); // 85
+    //    bitset<128> y(53);  // 53
+    //    bitset<128> n("11111");   // 31
+    //
+    //    bitset<128> u (15);
+    //    bitset<128> v (3);
+    //
+    //
+    //
 
-//     bitset<128> q = generateLargePrime();
-//     cout << q << endl;
-//     bitset<128> p = generateLargePrime();
-//     cout << p << endl;
+    bitset<128> q = generateLargePrime();
+    cout << q << endl;
+    bitset<128> p = generateLargePrime();
+    cout << p << endl;
 
-//     vector<bitset<128>> Alicekey = keyGen(p, q); // AliceKey = { eA,dA,n}
-//     //
-//     bitset<128> p1 = generateLargePrime();
-//     cout << p1 << endl;
-//     bitset<128> q1 = generateLargePrime();
-//     cout << q1 << endl;
-//     vector<bitset<128>> Bobkey = keyGen(p1, q1); // BobKey = { eB,dB,n}
-//                                                  //
-//                                                  //    bitset<128> message ("010101010101001011");
-//                                                  //    bitset<128> encr = encrypt(Bobkey[0], Bobkey[2], message);
-//                                                  //
-//     return 0;
-// }
+    vector<bitset<128>> Alicekey = keyGen(p, q); // AliceKey = { eA,dA,n}
+    //
+    bitset<128> p1 = generateLargePrime();
+    cout << p1 << endl;
+    bitset<128> q1 = generateLargePrime();
+    cout << q1 << endl;
+    vector<bitset<128>> Bobkey = keyGen(p1, q1); // BobKey = { eB,dB,n}
+                                                 //
+                                                 //    bitset<128> message ("010101010101001011");
+                                                 //    bitset<128> encr = encrypt(Bobkey[0], Bobkey[2], message);
+                                                 //
+    return 0;
+}
