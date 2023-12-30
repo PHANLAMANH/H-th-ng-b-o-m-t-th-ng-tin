@@ -6,20 +6,7 @@
 
 int main()
 {
-    // input file stream message.txt to read the message from the file
-    std::ifstream inFile("mess.txt");
-    if (!inFile)
-    {
-        std::cerr << "Error opening input file" << std::endl;
-        return 1;
-    }
-
-    // read the message from the file and store it with string type
-    std::string message;
-    std::getline(inFile, message);
-    inFile.close();
-
-    // generate original key ( aes key )
+    // generate original key using random number generator bitset<128> binary
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> dis(0, 1);
@@ -28,13 +15,26 @@ int main()
     {
         original_key[i] = dis(gen);
     }
+    std::cout << "Original key: " << original_key << std::endl;
 
-    // generate key from original key
-    std::bitset<128> key = generateKey(original_key);
-    // Divide the message into 128-bit blocks
+    // Sinh khóa k
+    std::bitset<128> generated_key = generateKey(original_key);
+
+    // đọc file mess.txt và lưu vào message
+    std::ifstream inFile("mess.txt");
+    if (!inFile)
+    {
+        std::cerr << "Error opening input file: mess.txt" << std::endl;
+        return 1;
+    }
+    std::string message;
+    std::getline(inFile, message);
+    inFile.close();
+
+    // Chia tin nhắn thành các khối 128 bit
     std::vector<std::bitset<128>> message_blocks = divideMessageIntoBlocks(message);
 
-    // encrypt the message blocks and print the cipher text blocks to file encrypted_aes.txt
+    // Mã hóa các khối tin nhắn và in các khối văn bản mã hóa ra file encrypted_aes.txt
     std::ofstream outFile("encrypted_aes.txt");
     if (!outFile)
     {
@@ -44,32 +44,26 @@ int main()
 
     for (const auto &block : message_blocks)
     {
-        std::bitset<128> encrypted_block = encryptBlock(key, block);
+        std::bitset<128> encrypted_block = encryptBlock(generated_key, block);
         outFile << encrypted_block << std::endl;
     }
     outFile.close();
 
-    std::ifstream file("mess.txt");
-    std::string input;
-    std::string line;
-    while (std::getline(file, line))
+    // Đọc file encrypted_aes.txt, giải mã các khối và in ra màn hình
+    std::ifstream inFile2("encrypted_aes.txt");
+    if (!inFile2)
     {
-        input += line;
-    }
-
-    SHA1 checksum;
-    checksum.update(input);
-    const string hash = checksum.final();
-
-    // print the hash( hexToBitset)  of the message to file signature.txt
-    std::ofstream outFile2("signature.txt");
-    if (!outFile2)
-    {
-        std::cerr << "Error opening output file: signature.txt" << std::endl;
+        std::cerr << "Error opening input file: encrypted_aes.txt" << std::endl;
         return 1;
     }
-    outFile2 << hexToBitset(hash) << std::endl;
-    outFile2.close();
+
+    std::vector<std::bitset<128>> encrypted_blocks;
+    std::string line;
+    while (std::getline(inFile2, line))
+    {
+        encrypted_blocks.push_back(std::bitset<128>(line));
+    }
+    inFile2.close();
 
     // generate p and q of Alice for RSA using largePrime function
     std::bitset<128> p = generateLargePrime();
@@ -96,20 +90,20 @@ int main()
         std::cerr << "Error opening output file: encrypted_key.txt" << std::endl;
         return 1;
     }
-    std::bitset<128> encrypted_key = encrypt(e_B, key2[2], key);
+    std::bitset<128> encrypted_key = encrypt(e_B, key2[2], generated_key);
     outFile3 << encrypted_key << std::endl;
     outFile3.close();
 
-    // encrypt signature.txt with RSA and print it to file encrypted_signature.txt
-    std::ofstream outFile6("encrypted_signature.txt");
-    if (!outFile6)
-    {
-        std::cerr << "Error opening output file: encrypted_signature.txt" << std::endl;
-        return 1;
-    }
-    std::bitset<128> encrypted_s = encrypt(d_A, key1[2], hexToBitset(hash));
-    outFile6 << encrypted_s << std::endl;
-    outFile6.close();
+    // // encrypt signature.txt with RSA and print it to file encrypted_signature.txt
+    // std::ofstream outFile6("encrypted_signature.txt");
+    // if (!outFile6)
+    // {
+    //     std::cerr << "Error opening output file: encrypted_signature.txt" << std::endl;
+    //     return 1;
+    // }
+    // std::bitset<128> encrypted_s = encrypt(d_A, key1[2], hexToBitset(hash));
+    // outFile6 << encrypted_s << std::endl;
+    // outFile6.close();
 
     // decrypt key with RSA and print it to file decrypted_key.txt
     std::ofstream outFile4("decrypted_key.txt");
@@ -136,26 +130,26 @@ int main()
     }
     outFile5.close();
 
-    // decrypt signature.txt with RSA and print it to file decrypted_signature.txt
-    std::ofstream outFile7("decrypted_signature.txt");
-    if (!outFile7)
-    {
-        std::cerr << "Error opening output file: decrypted_signature.txt" << std::endl;
-        return 1;
-    }
-    std::bitset<128> decrypted_s = decrypt(e_A, key2[2], encrypted_s);
-    outFile7 << decrypted_s << std::endl;
+    // // decrypt signature.txt with RSA and print it to file decrypted_signature.txt
+    // std::ofstream outFile7("decrypted_signature.txt");
+    // if (!outFile7)
+    // {
+    //     std::cerr << "Error opening output file: decrypted_signature.txt" << std::endl;
+    //     return 1;
+    // }
+    // std::bitset<128> decrypted_s = decrypt(e_A, key2[2], encrypted_s);
+    // outFile7 << decrypted_s << std::endl;
 
-    // compare the hash of the message with the decrypted signature
-    if (decrypted_s == hexToBitset(hash))
-    {
-        std::cout << "The message is authentic." << std::endl;
-    }
-    else
-    {
-        std::cout << "The message is not authentic." << std::endl;
-    }
-    outFile7.close();
+    // // compare the hash of the message with the decrypted signature
+    // if (decrypted_s == hexToBitset(hash))
+    // {
+    //     std::cout << "The message is authentic." << std::endl;
+    // }
+    // else
+    // {
+    //     std::cout << "The message is not authentic." << std::endl;
+    // }
+    // outFile7.close();
 
     int result = system("py cloud.py");
     if (result == 0)
