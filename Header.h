@@ -15,12 +15,17 @@
 #include <bitset>
 #include <random>
 #include <vector>
+#include <iostream>
+
+#include <iomanip>
+#include <cstdint>
+#include <typeinfo>
+#include "structures.h"
 
 typedef unsigned long ul;
 
 typedef unsigned long long ull;
 
 using namespace std;
-
 
 #endif /* Header_h */

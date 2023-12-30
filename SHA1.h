@@ -1,23 +1,3 @@
-/*
-    sha1.hpp - source code of
-
-    ============
-    SHA-1 in C++
-    ============
-
-    100% Public Domain.
-
-    Original C Code
-        -- Steve Reid <steve@edmweb.com>
-    Small changes to fit into bglibs
-        -- Bruce Guenter <bruce@untroubled.org>
-    Translation to simpler C++ Code
-        -- Volker Diels-Grabsch <v@njh.eu>
-    Safety fixes
-        -- Eugene Hopkinson <slowriot at voxelstorm dot com>
-    Header-only library
-        -- Zlatko Michailov <zlatko@michailov.org>
-*/
 
 #ifndef SHA1_HPP
 #define SHA1_HPP
@@ -351,25 +331,3 @@ std::bitset<128> hexToBitset(const std::string &hex)
 
     return bitset;
 }
-
-// int main(int /* argc */, const char ** /* argv */)
-// {
-//     // read input from file mess.txt
-//     std::ifstream file("mess.txt");
-//     std::string input;
-//     std::string line;
-//     while (std::getline(file, line))
-//     {
-//         input += line;
-//     }
-
-//     SHA1 checksum;
-//     checksum.update(input);
-//     const string hash = checksum.final();
-
-//     // hexToBitset(hash);
-//     cout << "sha1('" << input << "'):" << hash << endl;
-
-//     cout << "sha1('" << input << "'):" << hexToBitset(hash) << endl;
-//     return 0;
-// }

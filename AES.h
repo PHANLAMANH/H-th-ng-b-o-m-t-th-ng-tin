@@ -1,11 +1,5 @@
-#include <iostream>
-#include <random>
-#include <bitset>
-#include <iomanip>
-#include <cstdint>
-#include <typeinfo>
-#include "structures.h"
-#include <fstream>
+#include "Header.h"
+
 // nothing here
 
 // S-box và Rcon đã được cung cấp

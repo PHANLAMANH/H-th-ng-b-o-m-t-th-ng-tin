@@ -1,8 +1,7 @@
 #include "Header.h"
-#include "cloud.cpp"
-#include "RSA_Encryption_Decryption.cpp"
-#include "aes.cpp"
-#include "sha1.cpp"
+#include "SHA1.h"
+#include "AES.h"
+#include "RSA.h"
 
 int main()
 {
