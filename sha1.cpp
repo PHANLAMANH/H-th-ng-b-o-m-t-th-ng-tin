@@ -1,3 +1,23 @@
+/*
+    sha1.hpp - source code of
+
+    ============
+    SHA-1 in C++
+    ============
+
+    100% Public Domain.
+
+    Original C Code
+        -- Steve Reid <steve@edmweb.com>
+    Small changes to fit into bglibs
+        -- Bruce Guenter <bruce@untroubled.org>
+    Translation to simpler C++ Code
+        -- Volker Diels-Grabsch <v@njh.eu>
+    Safety fixes
+        -- Eugene Hopkinson <slowriot at voxelstorm dot com>
+    Header-only library
+        -- Zlatko Michailov <zlatko@michailov.org>
+*/
 
 #ifndef SHA1_HPP
 #define SHA1_HPP
@@ -8,6 +28,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <bitset>
 
 class SHA1
 {
@@ -290,31 +311,64 @@ inline std::string SHA1::from_file(const std::string &filename)
 }
 
 #endif /* SHA1_HPP */
-
+#include <string>
+#include <iostream>
 using std::cout;
 using std::endl;
 using std::string;
+std::bitset<128> hexToBitset(const std::string &hex)
+{
+    std::bitset<128> bitset;
+    std::size_t bitsetIndex = 0;
 
-// int main(int /* argc */, const char ** /* argv */)
+    for (int i = hex.size() - 1; i >= 0; --i)
+    {
+        char hexChar = hex[i];
+        std::bitset<4> hexValue;
+
+        if (hexChar >= '0' && hexChar <= '9')
+        {
+            hexValue = std::bitset<4>(hexChar - '0');
+        }
+        else if (hexChar >= 'A' && hexChar <= 'F')
+        {
+            hexValue = std::bitset<4>(hexChar - 'A' + 10);
+        }
+        else if (hexChar >= 'a' && hexChar <= 'f')
+        {
+            hexValue = std::bitset<4>(hexChar - 'a' + 10);
+        }
+        else
+        {
+            throw std::invalid_argument("Invalid character in hex string: " + std::string(1, hexChar));
+        }
+
+        for (int j = 0; j < 4; ++j)
+        {
+            bitset[bitsetIndex++] = hexValue[j];
+        }
+    }
+
+    return bitset;
+}
+
+// // int main(int /* argc */, const char ** /* argv */)
 // {
-//     std::ifstream inFile("text.txt");
-//     if (!inFile)
+//     // read input from file mess.txt
+//     std::ifstream file("mess.txt");
+//     std::string input;
+//     std::string line;
+//     while (std::getline(file, line))
 //     {
-//         std::cerr << "Error opening input file" << std::endl;
-//         return 1;
+//         input += line;
 //     }
-
-//     std::stringstream buffer;
-//     buffer << inFile.rdbuf();
-//     const std::string input = buffer.str();
-
-//     inFile.close();
 
 //     SHA1 checksum;
 //     checksum.update(input);
 //     const string hash = checksum.final();
 
-//     cout << "The SHA-1 of \"" << input << "\" is: " << hash << endl;
-
+//     // hexToBitset(hash);
+//     cout << "sha1('" << input << "'):" << hash << endl;
+//     cout << "sha1('" << input << "'):" << hexToBitset(hash) << endl;
 //     return 0;
 // }
