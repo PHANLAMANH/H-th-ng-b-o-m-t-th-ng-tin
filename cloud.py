@@ -30,8 +30,7 @@ def main():
 
     # List of files to upload
     files_to_upload = [
-        r"C:\Users\pkhoa\OneDrive - VNU-HCMUS\Documents\GitHub\H-th-ng-b-o-m-t-th-ng-tin\encrypted_signature.txt",
-        r"C:\Users\pkhoa\OneDrive - VNU-HCMUS\Documents\GitHub\H-th-ng-b-o-m-t-th-ng-tin\encrypted_message.txt",
+        # replace with your file paths on your local machine below
         # Add more file paths as needed
     ]
 

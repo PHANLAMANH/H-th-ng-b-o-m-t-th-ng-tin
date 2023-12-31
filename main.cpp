@@ -30,134 +30,175 @@ int main()
     std::getline(inFile, message);
     inFile.close();
 
-    // Chia tin nhắn thành các khối 128 bit
-    std::vector<std::bitset<128>> message_blocks = divideMessageIntoBlocks(message);
-
-    // Mã hóa các khối tin nhắn và in các khối văn bản mã hóa ra file encrypted_aes.txt
-    std::ofstream outFile("encrypted_aes.txt");
-    if (!outFile)
+    // hash message and print to file signature.txt
+    SHA1 checksum;
+    checksum.update(message);
+    const string hash = checksum.final();
+    std::bitset<128> hash_bitset = hexToBin(hash);
+    std::string hash_bitset_string = hash_bitset.to_string();
+    std::ofstream outFile8("signature.txt");
+    if (!outFile8)
     {
-        std::cerr << "Error opening output file: encrypted_aes.txt" << std::endl;
+        std::cerr << "Error opening output file: signature.txt" << std::endl;
         return 1;
     }
+    outFile8 << hash_bitset_string;
+    outFile8.close();
 
-    for (const auto &block : message_blocks)
+    // chia message thành các block 128 bit
+    std::vector<std::bitset<128>> blocks = divideMessageIntoBlocks(message);
+
+    // Mã hóa các khối tin nhắn và in các khối văn bản mã hóa ra file cipher.txt
+    std::ofstream outFile("cipher.txt");
+    if (!outFile)
     {
-        std::bitset<128> encrypted_block = encryptBlock(generated_key, block);
-        outFile << encrypted_block << std::endl;
+        std::cerr << "Error opening output file: cipher.txt" << std::endl;
+        return 1;
+    }
+    for (int i = 0; i < blocks.size(); ++i)
+    {
+        std::bitset<128> encrypted_block = encryptBlock(blocks[i], generated_key);
+        outFile << encrypted_block;
     }
     outFile.close();
 
-    // Đọc file encrypted_aes.txt, giải mã các khối và in ra màn hình
-    std::ifstream inFile2("encrypted_aes.txt");
-    if (!inFile2)
+    // get Alice encrypt key and n from file Alice_Encrypt_key.txt, first line is key eA, second line is n , bitset<128> eA, n
+    std::ifstream inFile1("Alice_Encrypt_key.txt");
+    if (!inFile1)
     {
-        std::cerr << "Error opening input file: encrypted_aes.txt" << std::endl;
+        std::cerr << "Error opening input file: Alice_Encrypt_key.txt" << std::endl;
         return 1;
     }
+    std::string eA, nA;
+    std::getline(inFile1, eA);
+    std::getline(inFile1, nA);
 
-    std::vector<std::bitset<128>> encrypted_blocks;
-    std::string line;
-    while (std::getline(inFile2, line))
+    // convert string to bitset
+    std::bitset<128> eA_bitset;
+    std::bitset<128> nA_bitset;
+    for (int i = 0; i < 128; ++i)
     {
-        encrypted_blocks.push_back(std::bitset<128>(line));
+        eA_bitset[i] = eA[i] - '0';
+        nA_bitset[i] = nA[i] - '0';
+    }
+    inFile1.close();
+
+    // get Bob encrypt key and n from file Bob_Encrypt_key.txt, first line is key eB, second line is n , bitset<128> eB, n
+    std::ifstream inFile2("Bob_Encrypt_key.txt");
+    if (!inFile2)
+    {
+        std::cerr << "Error opening input file: Bob_Encrypt_key.txt" << std::endl;
+        return 1;
+    }
+    std::string eB, nB;
+    std::getline(inFile2, eB);
+    std::getline(inFile2, nB);
+
+    // convert string to bitset
+    std::bitset<128> eB_bitset;
+    std::bitset<128> nB_bitset;
+    for (int i = 0; i < 128; ++i)
+    {
+        eB_bitset[i] = eB[i] - '0';
+        nB_bitset[i] = nB[i] - '0';
     }
     inFile2.close();
 
-    // generate p and q of Alice for RSA using largePrime function
-    std::bitset<128> p = generateLargePrime();
-    std::bitset<128> q = generateLargePrime();
+    // encrypt generated key using RSA with Bob encrypt key and n
+    std::bitset<128> encrypted_key = encrypt_RSA(generated_key, eB_bitset, nB_bitset);
 
-    // generate p and q of Bob for RSA using largePrime function
-    std::bitset<128> p2 = generateLargePrime();
-    std::bitset<128> q2 = generateLargePrime();
-
-    // generate key for Alice and Bob using p and q of Alice and Bob respectively
-    vector<bitset<128>> key1 = keyGen(p, q);
-    vector<bitset<128>> key2 = keyGen(p2, q2);
-
-    // generate encrypt key and decrypt key for Alice and Bob using key of Alice and Bob respectively
-    bitset<128> e_A = key1[0];
-    bitset<128> d_A = key1[1];
-    bitset<128> e_B = key2[0];
-    bitset<128> d_B = key2[1];
-
-    // encrypt key with RSA and print it to file encrypted_key.txt
-    std::ofstream outFile3("encrypted_key.txt");
-    if (!outFile3)
+    // print encrypted key to file encrypted_rsa_key.txt
+    std::ofstream outFile1("encrypted_rsa_key.txt");
+    if (!outFile1)
     {
-        std::cerr << "Error opening output file: encrypted_key.txt" << std::endl;
+        std::cerr << "Error opening output file: encrypted_rsa_key.txt" << std::endl;
         return 1;
     }
-    std::bitset<128> encrypted_key = encrypt(e_B, key2[2], generated_key);
-    outFile3 << encrypted_key << std::endl;
-    outFile3.close();
+    outFile1 << encrypted_key;
+    outFile1.close();
 
-    // // encrypt signature.txt with RSA and print it to file encrypted_signature.txt
-    // std::ofstream outFile6("encrypted_signature.txt");
-    // if (!outFile6)
-    // {
-    //     std::cerr << "Error opening output file: encrypted_signature.txt" << std::endl;
-    //     return 1;
-    // }
-    // std::bitset<128> encrypted_s = encrypt(d_A, key1[2], hexToBitset(hash));
-    // outFile6 << encrypted_s << std::endl;
-    // outFile6.close();
+    // decrypt encrypted key using RSA with Bob nB_bitset
+    std::bitset<128> decrypted_key = decrypt_RSA(encrypted_key, eB_bitset, nB_bitset);
 
-    // decrypt key with RSA and print it to file decrypted_key.txt
-    std::ofstream outFile4("decrypted_key.txt");
+    // print decrypted key to file decrypted_rsa_key.txt
+    std::ofstream outFile2("decrypted_rsa_key.txt");
+    if (!outFile2)
+    {
+        std::cerr << "Error opening output file: decrypted_rsa_key.txt" << std::endl;
+        return 1;
+    }
+    outFile2 << decrypted_key;
+    outFile2.close();
+
+    // use decrypted_key to decrypt cipher.txt using decryptBlock, Chuyển các khối đã mã hóa thành tin nhắn ban đầu bằng blocksToMessage and print to file decrypted_cipher.txt
+    std::ifstream inFile4("cipher.txt");
+    if (!inFile4)
+    {
+        std::cerr << "Error opening input file: cipher.txt" << std::endl;
+        return 1;
+    }
+    std::string cipher;
+    std::getline(inFile4, cipher);
+    inFile4.close();
+    std::vector<std::bitset<128>> cipher_blocks = divideMessageIntoBlocks(cipher);
+    std::ofstream outFile4("decrypted_cipher.txt");
     if (!outFile4)
     {
-        std::cerr << "Error opening output file: decrypted_key.txt" << std::endl;
+        std::cerr << "Error opening output file: decrypted_cipher.txt" << std::endl;
         return 1;
     }
-    std::bitset<128> decrypted_key = decrypt(d_B, key1[2], encrypted_key);
-    outFile4 << decrypted_key << std::endl;
+    for (int i = 0; i < cipher_blocks.size(); ++i)
+    {
+        std::bitset<128> decrypted_block = decryptBlock(cipher_blocks[i], decrypted_key);
+        // sử dụng blocksToMessage để chuyển các khối đã giải mã thành tin nhắn ban đầu
+        std::vector<std::bitset<128ULL>> decrypted_blocks;
+        decrypted_blocks.push_back(decrypted_block);
+        std::string decrypted_message = blocksToMessage(decrypted_blocks, message.length());
+        outFile4 << decrypted_message;
+    }
     outFile4.close();
 
-    // decrypt the cipher text blocks with AES and print the plain text blocks to file decrypted_aes.txt
-    std::ofstream outFile5("decrypted_aes.txt");
-    if (!outFile5)
+    // hash decrypted_cipher.txt and print to file verification.txt
+    std::ifstream inFile5("decrypted_cipher.txt");
+    if (!inFile5)
     {
-        std::cerr << "Error opening output file: decrypted_aes.txt" << std::endl;
+        std::cerr << "Error opening input file: decrypted_cipher.txt" << std::endl;
         return 1;
     }
-    for (const auto &block : message_blocks)
+    std::string decrypted_cipher;
+    std::getline(inFile5, decrypted_cipher);
+    inFile5.close();
+    SHA1 checksum1;
+    checksum1.update(decrypted_cipher);
+    const string hash1 = checksum1.final();
+    std::bitset<128> hash_bitset1 = hexToBin(hash1);
+    std::string hash_bitset_string1 = hash_bitset1.to_string();
+    std::ofstream outFile5("verification.txt");
+    if (!outFile5)
     {
-        std::bitset<128> decrypted_block = decryptBlock(decrypted_key, block);
-        outFile5 << decrypted_block << std::endl;
+        std::cerr << "Error opening output file: verification.txt" << std::endl;
+        return 1;
     }
+    outFile5 << hash_bitset_string1;
     outFile5.close();
-
-    // // decrypt signature.txt with RSA and print it to file decrypted_signature.txt
-    // std::ofstream outFile7("decrypted_signature.txt");
-    // if (!outFile7)
-    // {
-    //     std::cerr << "Error opening output file: decrypted_signature.txt" << std::endl;
-    //     return 1;
-    // }
-    // std::bitset<128> decrypted_s = decrypt(e_A, key2[2], encrypted_s);
-    // outFile7 << decrypted_s << std::endl;
-
-    // // compare the hash of the message with the decrypted signature
-    // if (decrypted_s == hexToBitset(hash))
-    // {
-    //     std::cout << "The message is authentic." << std::endl;
-    // }
-    // else
-    // {
-    //     std::cout << "The message is not authentic." << std::endl;
-    // }
-    // outFile7.close();
-
-    int result = system("py cloud.py");
-    if (result == 0)
+    // compare hash_bitset_string and hash_bitset_string1 to verify the message
+    if (hash_bitset_string == hash_bitset_string1)
     {
-        std::cout << "Script executed successfully." << std::endl;
+        std::cout << "Message is verified" << std::endl;
     }
     else
     {
-        std::cerr << "Script execution failed." << std::endl;
+        std::cout << "Message is not verified" << std::endl;
     }
+
+    //     int result = system("py cloud.py");
+    // if (result == 0)
+    // {
+    //     std::cout << "Script executed successfully." << std::endl;
+    // }
+    // else
+    // {
+    //     std::cerr << "Script execution failed." << std::endl;
+    // }
     return 0;
 }

@@ -56,6 +56,8 @@ bitset<128> subBin(bitset<128> x, bitset<128> y)
     return ans;
 }
 
+// generate operator - for bitset
+
 bitset<128> absolutesubBin(bitset<128> x, bitset<128> y)
 {
     bool borrow = false;

@@ -1,6 +1,6 @@
 #include "Header.h"
+
 const bitset<128> one_bitset(1);
-const bitset<128> two_bitset(2);
 bitset<128> zero(0);
 
 bool Adder(bool a, bool b, bool &carry)
@@ -293,7 +293,7 @@ bool isFermatPrime(bitset<128> p, int k)
 }
 
 // SAO EM CODE THEO THAY THUC MA KHONG DUOC :<<<<<
-vector<bitset<128>> extendedBezout(bitset<128> &x, bitset<128> &y)
+vector<bitset<128>> extendedBezout(bitset<128> x, bitset<128> y)
 {
     bitset<128> g = 1;
     while (isEven(x) && isEven(y))
@@ -367,6 +367,33 @@ vector<bitset<128>> extendedBezout(bitset<128> &x, bitset<128> &y)
     return key;
 }
 
+pair<bitset<128>, bitset<128>> divideBitsets(const bitset<128> &dividend, bitset<128> &divisor)
+{
+    // Ensure divisor is not zero
+    if (divisor == 0)
+    {
+        cerr << "Error: Division by zero!" << endl;
+        return make_pair(bitset<128>(0), bitset<128>(0));
+    }
+
+    bitset<128> quotient(0);
+    bitset<128> remainder(0);
+
+    for (int i = 127; i >= 0; --i)
+    {
+        remainder <<= 1;            // Left shift to make room for the next bit
+        remainder[0] = dividend[i]; // Add the next bit from the dividend
+
+        if (remainder >= divisor)
+        {
+            remainder = subBin(remainder, divisor);
+            quotient[i] = 1;
+        }
+    }
+
+    return make_pair(quotient, remainder);
+}
+
 vector<bitset<128>> bezoutCofficient(bitset<128> a, bitset<128> b)
 {
     bitset<128> s(0);
@@ -378,10 +405,12 @@ vector<bitset<128>> bezoutCofficient(bitset<128> a, bitset<128> b)
 
     while (r != 0)
     {
-        bitset<128> quotient = old_r.to_ulong() / r.to_ulong();
+        bitset<128> quotient = divideBitsets(old_r, r).first;
+        //        old_r.to_ullong() / r.to_ullong();
         bitset<128> temp = r;
 
-        r = old_r.to_ulong() - quotient.to_ulong() * r.to_ulong();
+        r = subBin(old_r, mulBin(quotient, r));
+        // old_r.to_ulong() - quotient.to_ulong() * r.to_ulong();
         old_r = temp;
 
         // We treat s and t in the same manner we treated r
@@ -423,18 +452,6 @@ bitset<128> generateLargePrime()
     return n;
 }
 
-bitset<128> modInverse(bitset<128> a, bitset<128> n)
-{
-
-    // Calculate extended Euclidean algorithm
-    vector<bitset<128>> bezout = extendedBezout(a, n);
-    //(x % M + M) % M;
-    bitset<128> temp = Mod(bezout[1], n);
-    temp = addBin(temp, n);
-    temp = Mod(temp, n);
-    return temp;
-}
-
 vector<bitset<128>> keyGen(bitset<128> p, bitset<128> q)
 {
 
@@ -452,12 +469,12 @@ vector<bitset<128>> keyGen(bitset<128> p, bitset<128> q)
         bitset<128> random = bitset<128>(rand());
         bitset<128> temp = phi + bitset<128>(2);
         eCandidate = Mod(random, temp);
-    } while (bezoutCofficient(eCandidate, phi)[0] != 1);
+    } while (extendedEuclid(eCandidate, phi) != 1);
 
     d = bezoutCofficient(eCandidate, phi)[1];
 
     // TO MAKE SURE NOT NEGATIVE
-    phi = phi << 2;
+    phi = phi << 1;
     d = addBin(d, phi);
 
     vector<bitset<128>> key;
@@ -467,16 +484,47 @@ vector<bitset<128>> keyGen(bitset<128> p, bitset<128> q)
     return key;
 }
 
-bitset<128> encrypt(bitset<128> e, // encrypt key ( public key)
-                    bitset<128> n, //
-                    bitset<128> k)
+bitset<128> encrypt_RSA(bitset<128> e, // encrypt key ( public key)
+                        bitset<128> n, //
+                        bitset<128> k)
 {
     return powerMod(k, e, n);
 }
 
-bitset<128> decrypt(bitset<128> d, // decrypt key ( private key)
-                    bitset<128> n,
-                    bitset<128> c)
+bitset<128> decrypt_RSA(bitset<128> d, // decrypt key ( private key)
+                        bitset<128> n,
+                        bitset<128> c)
 {
     return powerMod(c, d, n);
+}
+void writeEncryptKeyToFile(const std::string &filename, const std::vector<std::bitset<128>> &key)
+{
+    std::ofstream outputFile(filename);
+
+    if (!outputFile.is_open())
+    {
+        std::cerr << "Error: Unable to open file for writing." << std::endl;
+        return;
+    }
+    outputFile << key[0] << endl;
+    outputFile << key[2];
+
+    outputFile.close();
+    cout << "Key has been successfully written to the file: " << filename << std::endl;
+}
+
+void writeDecryptKeyToFile(const std::string &filename, const std::vector<std::bitset<128>> &key)
+{
+    std::ofstream outputFile(filename);
+
+    if (!outputFile.is_open())
+    {
+        std::cerr << "Error: Unable to open file for writing." << std::endl;
+        return;
+    }
+    outputFile << key[1] << endl;
+    outputFile << key[2];
+
+    outputFile.close();
+    cout << "Key has been successfully written to the file: " << filename << std::endl;
 }
