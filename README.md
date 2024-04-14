@@ -1,9 +1,7 @@
-# He thong bao mat thong tin
-Xây dựng hệ thống cung cấp dịch vụ bảo mật thông tin khi trao đổi trên mạng. 
-#hướng dẫn cài đặt
-##Sử dụng AES để tạo khoá k và mã hóa tin nhăn message và gửi cho người nhận
-## Sử dụng RSA để mã hóa khoá k và gửi cho người nhận
+# Information Security System
+Build a system that provides secure information services when exchanging data over the network.
+#installation guide
+## Use AES to create key k and encrypt the message, then send it to the recipient.
+## Use RSA to encrypt key k and send it to the recipient.
 
-##với việc chọn lựa file để upload lên cloud, vào cloud.py để thay đổi đường dẫn file cần upload và chạy dòng code 194-202 ở main.cpp 
-
-
+## For selecting a file to upload to the cloud, go to cloud.py to change the path of the file you want to upload and run lines 194-202 in main.cpp.
